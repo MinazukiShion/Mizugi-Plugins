@@ -1,0 +1,1588 @@
+LangCode	zh
+OK	确定
+Cancel	取消
+Yes	是
+No	否
+All	全部
+Error	错误
+Information	信息
+Question	询问
+Confirm	确认
+Warning	警告
+Allow	允许
+Reset	重置
+Canceled.	已取消。
+Canceling	正在取消…
+Outputted.	已输出。
+Insert	插入对象
+ResetQuery	确定要重置吗？
+NotShowAgain	不再显示此消息。
+MemoryErr	内存不足。
+MemoryErr32	内存占用已达到 32 位版本的上限。\n请改用可充分利用内存的 64 位版本。
+DiskReadErr	从磁盘读取失败。
+DiskWriteErr	写入磁盘失败。
+SystemErr	因系统错误无法处理。
+ConflictPluginModule	为防止文件冲突，已临时禁用插件。\n如不需要请将其卸载。
+NoObject	未选中对象。
+NoMaterial	未选中材质。
+FaceErr	未选中面。
+LineErr	未选中边。
+NoSelection	未选中任何顶点、线或面。
+NoStoreSelection	尚未存储选择状态。
+LockErr	对象已锁定。
+NoTextErr	未输入文本。
+CaptureErr	捕获渲染图像失败。
+UndoMemoryErr	撤销所需内存不足。
+UndoText	撤销
+UndoFormat	撤销 %1
+RedoText	重做
+RedoFormat	重做 %1
+EditCut	剪切
+EditCopy	复制
+EditPaste	粘贴
+EditDelete	删除
+EditDecimalDigitUp	增加小数位数
+EditDecimalDigitDown	减少小数位数
+Dockable	可停靠
+DeleteQuery	确定要删除 %1 吗？
+DeleteUsedQuery	%1 仍在使用中。\n确定要删除吗？
+SameExists	已存在。
+RequestAccessDir	需要访问此文件夹的权限。点击[允许]继续。
+SameLayoutOverwrite	已存在同名布局文件。\n确定要覆盖吗？
+LoadLayoutErr	无法加载布局。
+Untitled	未命名
+NotRegSave	许可证未认证，无法保存。
+NotRegExport	许可证未认证，无法导出文件。
+NotRegImport	许可证未认证，无法通过插件导入文件。
+NotEditionSave	当前许可证版本不支持此文件格式。
+EditionNone	免费版
+EditionStd	标准版
+EditionEx	EX 版
+EditionTrialStd	标准版（试用）
+EditionTrialEx	EX 版（试用）
+EditionLastDays	 - 剩余 %1 天
+ExpiredBeta	此测试版已过期。\n程序即将退出。
+TimeConnectError	无法连接互联网，无法认证。\n即将退出程序。
+NotInstalledCorrect	缺少必需文件，无法运行。\n安装可能不完整。
+OSUnstable	无法运行本程序。\n重启 Windows 可能解决。
+DirSampleModels	示例模型
+DirDocument	文档
+DirDesktop	桌面
+AddFavorite	将此文件夹加入收藏
+RemoveFavorite	将此文件夹移出收藏
+FavoriteExists	此文件夹已在收藏中。
+FavoriteNotFound	找不到该文件夹。\n要从收藏中移除吗？
+FavoriteAdded	已加入收藏。
+NotFoundDir	找不到文件夹。
+NotFoundWebDat	找不到 web.dat。
+UpdateInfoBroken	无法获取更新信息。
+ErrorOnRender	渲染时发生错误。
+RenderManNotInstall	未安装 RenderMan，此功能不可用。
+RenderNoPBRMaterial	存在非 PBR 着色器。路径追踪结果可能不同。
+ClearAllSettingsQuery	确定要重置全部设置（包括环境设置以外的状态）吗？
+ResolutionOver	此版本的路径追踪最大分辨率为 %1 x %2。
+ClearAllSettingsReboot	请退出并重启 %1 以完成重置。
+LanguageFont	语言已更改。\n要同时更改显示字体吗？
+RebootForSetting	请退出并重启 %1 以应用更改。
+ClearAllShortcut	确定要重置全部快捷键吗？
+LoadFileErr	加载文件失败。
+LoadFileOpenErr	无法打开文件。
+LoadFileBrokenErr	加载失败。\n文件内容可能已损坏。
+LoadUnknownFileErr	不支持加载此文件。
+LoadFormatVerErr	不支持此文件版本。\n请使用最新版本。
+LoadZipNotFoundErr	加载失败：压缩包内容缺失。
+LoadUVChannelExceed	UV 通道数超出上限。
+NoObjInFile	文件中没有对象。
+NeedSave	文档已修改。\n要保存更改吗？
+SaveFileErr	保存文件失败。
+SaveFileCreateErr	保存失败。\n请确认目标文件夹可写。
+SaveFileWriteErr	写入时发生错误，保存失败。\n请确认磁盘空间与权限。
+SaveLimitForLite	顶点或面数超过免费版上限，无法保存。
+LoadCrashSave	检测到上次异常退出时的自动保存文件。\n要恢复吗？
+BackupDirOverflow	备份文件夹超出上限。\n要打开该文件夹吗？
+NoSquareFileErr	请选择正方形图像。
+NoUnusedMat	没有未使用的材质。
+DelAllMat	确定要删除全部材质吗？
+MergeObj	确定要将 %1 合并到 %2 吗？
+MergeObjSelect	确定要将选中对象合并到 %1 吗？
+MergeMatSelect	确定要将选中材质合并到 %1 吗？
+ExistMat	%1 已存在。
+DelChildObj	要同时删除子对象吗？
+PluginConflictUsed	使用中
+PluginConflictIgnored	已忽略
+PluginUnsupportVer	不支持的版本。
+PluginInvalidID	插件 ID 无效。
+PluginInvalidFunc	缺少有效函数。
+PluginOverwrite	%1 已存在。\n确定要覆盖吗？
+PlugInsSucceed	安装成功。
+PlugInsInvalid	安装失败。
+PlugInsInvalidPlatform32	安装失败。\n可能不是 32 位插件。
+PlugInsInvalidPlatform64	安装失败。\n可能不是 64 位插件。
+PlugInsNotPlugin	此文件不是 Metasequoia 插件。
+PlugInsInvalidZip	无法解压 zip 文件。
+PlugInsFail	安装失败。
+PlugInImport	导入
+PlugInExport	导出
+PlugInSelect	选择
+PlugInObject	对象
+PlugInCreate	创建
+PlugInStation	常驻
+PlugInCommand	命令
+NoPythonDll	找不到 %1。
+UpdateErr	获取更新信息失败。\n(%1)
+LatestInfo	最新信息
+LatestInfoConfirm	确认
+LatestInfoCancel	暂不
+UpdateLatest	当前已是最新版本。
+UpdateNewer	新版本 %1 已发布。
+UpdateNewerDev	新测试版 %1 已发布。
+SendErrorConfirm	将向 Metasequoia 开发者发送错误信息。
+SendErrorSucceed	发送成功！\n谢谢。
+EditModeQuerySave	内容已修改。\n要保存吗？
+LightPresetRegister	注册新灯光预设
+LightPresetRegisterName	灯光预设名称
+LightPresetName.Default	默认
+LightPresetName.ThreePoints	三点照明
+LayoutRegister	注册新布局
+LayoutRegisterName	布局名称
+LayoutRegisterFour	四视图
+ViewRecord	记录视角
+ViewRestore	恢复视角
+DisplayAlpha	半透明：
+DisplayAlphaDisable	禁用
+DisplayAlphaEnable	启用
+DisplayAlphaOIT	精确
+DisplayShader	着色器：
+DisplayShaderDisable	禁用
+DisplayShaderEnable	启用
+DisplayShaderDisableEdge	无边线
+RenderDevice	渲染器：
+RenderMQR	软件渲染
+RenderD3D11	Direct3D 11
+RenderGL	OpenGL
+RenderMetal	Metal
+DisplayUnit	显示单位：
+DisplayUnitNone	无
+DisplayDegree	度
+InvertTextureV	翻转纹理 V 坐标
+ExportFailed	导出文件失败。
+FileOpenTitle	打开
+FileSaveTitle	保存
+FileNoName	请保存文件以指定文件名。
+FileNotFound	找不到文件。
+FileOpenFailed	无法打开文件。
+FileTooLarge	文件过大，无法加载。
+FileOpenAll	全部文件
+FileOpenAllSupport	全部支持的文件
+FileMQO	Metasequoia 对象
+FileMQOOption	Metasequoia 旧格式对象
+FileMQP	Metasequoia 调色板
+ClipboardSucceed	已将渲染图像复制到剪贴板。
+ClipboardFail	复制渲染图像到剪贴板失败。
+FileAssocFail	无法更改文件关联。(%1)
+FileAssocCancel	文件关联未更改。
+ScriptEditor	脚本编辑器
+ScriptReplaceMes	确定要替换吗？
+ScriptNotFound	找不到 %1。
+ScriptChanged	脚本已修改。\n要保存文件吗？
+ScriptFind	查找
+ScriptReplace	替换
+ScriptUndo	脚本
+NotRegScript	未认证状态下无法运行脚本。
+RunScriptFail	脚本运行失败。
+MatNoName	材质必须命名。
+MatSameName	已存在同名材质。
+MatDblQuotName	不能使用双引号。
+MatIncName	名称无效。
+MatNotFound	找不到图像文件。
+ObjNoName	对象必须命名。
+ObjSameName	已存在同名对象。
+ObjDblQuotName	不能使用双引号。
+DocInfo	文档信息
+GridSetting	网格设置
+TriangulatePolygon	多边形三角化
+EditX	启用 X 轴编辑。\n(Shift+点击 = 仅 X)
+EditY	启用 Y 轴编辑。\n(Shift+点击 = 仅 Y)
+EditZ	启用 Z 轴编辑。\n(Shift+点击 = 仅 Z)
+EditToggle	切换
+EditRightClickToggle	允许右键切换
+HandleMove	移动
+HandleScale	缩放
+HandleRotate	旋转
+SelTitle	选择
+SelNormal	通常
+SelNormalMes	左键=单选。Shift+左键=拖动连续选择。
+SelJoin	接合面
+SelJoinMaterial	同材质
+SelJoinAngle	角度限制
+SelBelt	带状
+SelBeltMes	左键=选择线。Shift+左键=追加/取消。
+SelEdgeLoop	连续边
+SelGrow	扩展
+SelRoute	路径
+SelRouteCrease	沿折痕
+SelRouteVertMes	左键=点击顶点。右键=结束。
+SelRouteLineMes	左键=点击边。右键=结束。
+SelRouteFaceMes	左键=点击面。右键=结束。
+SelCurObj	现物指定
+SelCurObjMes	左键=选择顶点、边或面。
+SelBrush	刷选
+SelBrushSize	尺寸
+SelBrushFace	面选择方式
+SelBrushVertex	部分接触
+SelBrushCenter	中心
+MoveTitle	移动
+MoveHandle	手柄
+MoveHandleRotate	方向
+MoveHandleNormal	法线方向
+MoveNormalEachVertex	逐顶点
+MoveNormalSelectFace	选中面方向
+MoveFixDir	固定方向
+MoveRel	相对
+MoveAbs	绝对
+MoveCoord	坐标系
+MoveLocal	局部
+MoveWorld	世界
+MoveNormalDir	法线方向
+MoveDragZMes	Ctrl+左键=沿 Z 移动，Shift+左键=水平/垂直移动。
+MoveDragYMes	Ctrl+左键=沿 Y 移动，Shift+左键=水平/垂直移动。
+MoveVertMes	右键=吸附到其他顶点。
+MoveFaceMes	Alt+左键=沿面方向移动。
+ScaleTitle	缩放
+ScaleHandle	手柄
+ScaleBox	框体
+ScaleDefault	默认
+ScaleScreen	屏幕
+ScaleProp	属性
+ScaleCageMes	左键=缩放。Shift+左键=等比缩放。
+RotTitle	旋转
+RotHandle	手柄
+RotBall	轨迹球
+RotScreen	屏幕
+RotX	X 轴
+RotY	Y 轴
+RotZ	Z 轴
+RotProp	属性
+LocalEditTitle	局部轴
+LocalEditShape	形状
+LocalEditChild	子级
+LocalEditMove	移动
+LocalEditRotate	旋转
+LocalEditScale	缩放
+LocalEditCenter	居中
+LocalEditCenterObject	按对象中心
+LocalEditCenterSelect	按选区
+LocalEditProp	属性
+LocalMoveMes	左键=移动。
+LocalMoveCenterMes	左键=移动。右键=吸附到最近顶点。
+LocalRotMes	左键=旋转。
+LocalScaleMes	左键=缩放。
+NrmTitle	法线
+Nrm	显示法线
+NrmOrgObj	源对象
+NrmTransSelect	仅选中顶点
+NrmShowProp	显示设置
+NrmMove	移动
+NrmRotate	旋转
+NrmInput	数值输入
+NrmTrans	转录
+NrmFix	固定
+NrmUnfix	重置
+NrmFixed	固定法线
+NrmNotFixed	未固定法线
+NrmHard	折痕
+NrmSelect	选中法线
+NrmLength	法线长度
+NrmHardEdge	折痕边
+NrmDefault	取消折痕
+NrmPLF	点|线|面
+NrmApex	顶点
+NrmRadius	半径
+NrmEditProp	属性
+NrmAve	平均化
+NrmUnify	统一
+NrmHandle	手柄
+NrmInit	默认
+NrmMoveMes	左键=选择并移动。Shift+左键=加选。
+NrmSubdiv	细分对象的顶点法线不可编辑。
+UVTitle	UV 编辑
+UVTitleMenu	UV 编辑
+UVChannelDefault	默认 UV
+UVChannelAdd	添加 UV 通道
+UVChannelDelete	删除 UV 通道
+UVChannelRename	重命名通道
+UVChannelName	UV 通道名称
+UVChannelAll	更改所有对象和材质的名称
+UVChannelAlreadyUsed	该 UV 通道名称已被使用。
+UVMapTexture	纹理
+UVMapAlpha	透明
+UVMapBump	凹凸/法线
+UVMapNone	（无可显示的贴图）
+UVVertex	点
+UVFace	面
+UVApex	角点
+UVVertex3D	点
+UVFace3D	面
+UVApex3D	角点
+UVSelect	选择
+UVExpand	扩展
+UVBrush	刷选
+UVRect	框选
+UVRope	套索
+UVMove	移动
+UVRotate	旋转
+UVScale	缩放
+UVMagnet	磁石
+UVLattice	晶格
+UVRelax	松弛
+UVSplit	分离
+UVStitch	缝合
+UVStraighten	拉直
+UVSlide	顶点滑动
+UVAutoUnwrap	自动展开
+UVRepack	图像重排
+UVFlat	平面
+UVCylinder	圆柱
+UVSphere	球面
+UVNormalize	重复归一
+UVNormalizeSize	调整组大小
+UVUnify	合并
+UVSeparate	分离
+UVSymmetrize	对称化
+UVProject	投影
+UVAlign	对齐
+UVAlignAuto	自动
+UVFlipU	水平翻转
+UVFlipV	垂直翻转
+UVCopy	复制
+UVPaste	粘贴
+UVMirrorCopy	镜像复制
+UVTranscript	转录
+UVImageStore	存储图像
+UVImageStoreMenu	存储图像
+UVImageRepack	重排
+UVImageRepackMenu	重排图像
+UVImageRepackGroup	图像重排
+UVSwitch	旋转 UV
+UVInvert	反转 UV
+UVOutputFile	导出
+UVSymmetryCenter	对称中心
+UVConfig	设置
+UVApply	应用
+UVFit	适配
+UVProperty	属性
+UVUnwrap	展开
+UVObject	对象
+UVCurObj	现物
+UVMaterial	材质
+UVTexture	纹理
+UVRepeat	重复
+UVGrid	网格
+UVSnap	吸附
+UVReset	初始化
+UVShowApex	选中
+UVCrack	切缝
+UVDistortion	扭曲
+UVEditExpandMes	Shift+左键=加选。Ctrl+左键=减选。
+UVEditRectMes	Shift+左键=加选。Ctrl+左键=减选。
+UVEditRopeMes	Shift+左键=加选。Ctrl+左键=减选。
+UVEditMagnetMes	左键=移动。Alt+左键=调整范围。
+UVEditLatticeMes	左键=移动。
+UVEditRelaxMes	左键=松弛。Alt+左键=调整范围。
+UVEditSlideMes	左键=保持 UV 不变移动顶点。
+UVEditUnwrapEraseRouteMes	左键=移除路径。右键=取消。
+UVEditUnwrapPinMes	左键=选择并移动固定点。Ctrl+左键=减选。
+UVEditHandleMes	左键=编辑手柄。
+UVRotateAngle	角度
+UVLatticeBase	基准
+UVLatticeModify	变形
+UVLatticeFit	适配
+UVLatticeSeg	分段
+UVLatticeInterp	平滑插值
+UVRelaxFixBorder	固定边界
+UVStraightenBorder	仅边界
+UVUnwrapSelect	选择
+UVUnwrapCrack	选择切缝
+UVUnwrapNormal	通常选择
+UVUnwrapAddRoute	吸附选择
+UVUnwrapEraseRoute	移除路径
+UVUnwrapExecute	执行
+UVUnwrapUsePin	用 UV 钉重算
+UVUnwrapModeUnwrap	展开
+UVUnwrapModePin	调整
+UVUnwrapPinAuto	自动应用
+UVUnwrapImageAuto	重排图像
+UVUnwrapABF	角度基准
+UVUnwrapLSCM	LSCM
+UVCrackCurrent	从当前切缝
+UVCrackAuto	自动
+UVNoUnwrapView	无展开视图。
+UVCopyFail	请选择单个面。
+UVTranscriptNoTarget	当前对象之外没有其他对象。
+UVNoModified	未修改任何 UV 顶点。
+UVNoSelectUVVert	未选中 UV 顶点。
+UVOutputFail	导出文件失败。\n请检查扩展名。
+UVUnwrapNoPinSelect	请选择两个以上要固定的 UV 顶点。
+UVUnwrapInvalidRange	请修正左上或右下的数值。
+UVUnwrapNoFaceMap	选中面没有指定贴图。
+UVUnwrapNoStoredMap	没有已存储的图像。
+MapTitle	贴图
+MapMove	移动
+MapRotate	旋转
+MapScale	缩放
+MapInvertU	反转 U
+MapInvertV	反转 V
+MapFitSel	适配选中
+MapFitObj	适配现物
+MapType	贴图类型
+MapProp	属性
+MapMoveMes	左键=移动。
+MapRotMes	左键=旋转。
+MapScaleMes	左键=缩放。Shift+左键=等比。
+MapLoseUV	确定要丢失 UV 坐标吗？
+PrimTitle	基本体
+PrimProp	属性
+PrimCreate	创建
+PrimSegment	分段
+PrimMes	左键=放置基本体。
+CreateTitle	创建面
+CreateFront	正面
+CreateBack	背面
+CreateBoth	双面
+CreateLine	线
+CreateTri	三角形
+CreateQuad	四边形
+CreatePolygon	多边形
+CreateUndo	撤销
+CreateAdd	添加
+CreateAlwaysSnapFace	始终吸附到面
+CreateMes	左键=添加顶点。Ctrl+左键=吸附到最近顶点。
+CreateBadPt	该点已被选择。
+DelTitle	删除
+DelSingle	单个面
+DelJoin	接合面
+DelMes	左键=删除面。
+InvTitle	反转
+InvSingle	单个面
+InvJoin	接合面
+InvMes	左键=反转面。
+ExtrdTitle	挤出
+ExtrdNormal	法线
+ExtrdBevel	倒角
+ExtrdDivide	分割
+ExtrdInsetAngle	内插角
+ExtrdAngle	角度
+ExtrdMes	左键+左右=挤出面。
+MatTitle	材质
+MatSingle	单个面
+MatJoin	接合面
+MatBrush	刷子
+MatBrushRadius	半径
+MatSegment	分割
+MatSegmentEdge	边缘检测
+MatSegmentPreview	预览
+MatSegmentExec	应用
+MatUndoBrush	材质-刷子
+MatUndoSegment	材质-分割
+PullFaceTitle	拉面
+PullFace3Text	三角形
+PullFace3	创建三角形
+PullFace3Mes	左键=确定引线起点。
+PullFace3Mes2	左键=确定引线终点。
+PullFace3Mes2V	左键=确定引线终点。右键=吸附到顶点。
+PullFace3Fail	创建三角形失败。
+PullFace4Text	四边形
+BevelTitle	倒角
+BevelMes	左键=选择边。
+BevelLength	长度
+BevelRound	圆角
+MagTitle	磁石
+MagHandle	手柄
+MagSel	仅选中
+MagRange	范围
+MagDrag	设置范围
+MagDis	接合距离
+TwistTitle	扭转
+TwistMes	左键=移动轴或开始扭转。
+TwistAxisMes	左键=移动轴。右键=吸附到最近顶点。
+TwistTwistMes	左键+左右=扭转。Shift+左右=吸附扭转。
+TwistProp	属性
+BendTitle	弯曲
+BendStart	起点
+BendEnd	终点
+BendTarget	方向
+BendInit	初始位置
+BendProp	属性
+BendMes	左键=拖动设置起点和终点。
+BendReadyMes	左键=移动边缘点，或拖动圆环弯曲。
+BendEdgeMes	左键=移动边缘点。右键=吸附到最近顶点。
+BendTargetMes	左键=拖动弯曲。
+BendZeroWarn	请输入非零数值。
+ShearTitle	剪切
+ShearMes	左键=拖动设置起点和终点。
+ShearReadyMes	左键=移动边缘点，或拖动直线剪切。
+ShearEdgeMes	左键=移动边缘点。右键=吸附到最近顶点。
+ShearTargetMes	左键=拖动剪切。
+LatticeTitle	晶格
+LatticeBase	基准
+LatticeMoveMes	左键=移动。
+LatticeScaleMes	左键=缩放。
+LatticeRotateMes	左键=旋转。
+LatticeModify	变形
+LatticeModifyMes	左键=移动顶点。
+LatticeFit	适配
+LatticeAlignLocal	对齐局部轴
+LatticeProp	属性
+HoleTitle	孔洞
+HoleFill	填补孔洞
+HoleFillText	填补
+HoleFillMes	左键=点击开口边
+HoleBridge	桥接
+HoleBridgeText	桥接
+HoleBridgeMes	左键=点击开口边
+HoleHighlight	高亮孔洞
+HoleHighlightColor	颜色
+HoleCenter	中心顶点
+HoleTriangulate	三角化
+HolePolygon	多边形
+HoleRefine	内部分割
+HoleFillAll	填补全部孔洞
+HoleNoHole	目标对象没有孔洞。
+EdgeTitle	边
+EdgeAddEdge	添加边
+EdgeAddEdgeText	添加
+EdgeAddEdgeFail	添加边失败。
+EdgeAddEdgeContinuous	连续
+EdgeDivideTriangle	三角化
+EdgeEraseEdge	消去边
+EdgeEraseEdgeText	消去
+EdgeEraseEdgeMes	左键=点击要消去的边。
+EdgeDivide	分割边
+EdgeDivideText	分割
+EdgeSwap	交换对角线
+EdgeSwapText	交换
+EdgeSwapMes	左键=点击要交换的边。
+KnifeTitle	刀
+KnifeKnife	刀
+KnifeKnifeText	刀
+KnifeKnifeMes	左键=确定切割起点。
+KnifeShiftAngle	Shift 吸附角度
+KnifeKeepVertex	保留顶点
+KnifeDivideRegular	等间距
+KnifeDivideInterval	#
+KnifeDivideEndTri	端点三角化
+KnifeSaw	锯
+KnifeSawText	锯
+KnifeSawMes	左键=框选区域
+KnifeSawMode	锯模式
+KnifeSawLine	线
+KnifeSawBox	框
+KnifeSawReserve	保留切下部分
+KnifeHole	开孔
+KnifeHoleText	开孔
+KnifeStraight	连续切
+KnifeStraightText	连续切
+KnifeStraightMes	左键=选择要切的线。
+KnifeStraightMes2	左键=确定切割终点。
+KnifeChain	连续消
+KnifeChainText	连续消
+KnifeChainMes	左键=选择要消去的线。
+KnifeFail	切割失败。
+WeightTitle	权重
+WeightMes	左键=选择顶点。
+WeightTarget	目标
+WeightVertex	Spline 曲面
+WeightCrease	Catmull-Clark
+WeightSemiCrease	OpenSubdiv
+WeightShowColor	显示颜色
+WeightMaxValue	范围
+VColTitle	顶点色
+VColVert	顶点
+VColPoly	面
+VColApex	角点
+VColBrush	刷子
+VColRadius	笔刷大小
+VColApply	应用到选中面
+VColIllum	照亮
+VColFilter	滤镜
+VColAO	环境光遮蔽
+VColTrans	转录
+VColFromTexture	从纹理转换
+VColToTexture	转换为纹理
+VColMes	左键=绘制。Shift+左键=取色。Ctrl+左键=擦除。
+VColNoTexture	没有带纹理的材质。
+VColNoTarget	没有带顶点色的面。
+Blob	变形球
+BlobTitle	变形球
+BlobDel	删除
+BlobCopy	复制
+BlobMove	移动
+BlobRot	旋转
+BlobScale	缩放
+BlobProp	属性
+BlobPoly	多边形化
+BlobConfig	设置
+BlobPutMes	左键=放置变形球。
+BlobDelMes	左键=删除变形球。
+BlobCopyMes	左键=复制变形球。
+BlobRotMes	左键=旋转变形球。
+BlobScaleMes	左键=缩放
+BlobNoBlob	不存在变形球。
+BlobFailPoly	变形球多边形化失败。
+BlobSize0	大小不能为零。
+BlobSphere	球
+BlobCylinder	圆柱
+BlobBox	方块
+BlobTorus	圆环
+BlobCone	圆锥
+BlobPyramid	棱锥
+BlobTube	圆管
+BlobRoundBox	圆角方块
+BlobRoundCylinder	圆角圆柱
+PaintMes	左键=绘制。Shift+左键=取色。
+PaintBrush	笔刷
+PaintFill	填充
+PaintResize	调整大小
+PaintScroll	滚动
+PaintEffect	效果
+PaintPaste	粘贴
+PaintPopBuffer	从缓冲粘贴
+PaintConvertNormal	转换为法线
+BkImgTitle	背景图
+BkImgLoad	载入
+BkImgReverseH	水平翻转
+BkImgReverseV	垂直翻转
+BkImgReset	重置
+BkImgWidth	宽度
+BkImgHeight	高度
+BkImgAngle	角度
+BkImgMes	左键=移动或变换。
+SculptTitle	雕刻
+SculptDraw	拉起
+SculptInflate	膨胀
+SculptGrab	抓握
+SculptSmooth	平滑
+SculptFlat	压平
+SculptInverse	反向
+SculptRadius	笔刷大小
+SculptPressure	压力
+SculptSubdiv	自动细分
+SculptSubdivLevel	细分级别
+SculptDrawMes	左键=拉起。Shift+左键=反向。
+SculptInflateMes	左键=膨胀。
+SculptGrabMes	左键=移动顶点。
+SculptSmoothMes	左键=平滑顶点。
+SculptFlatMes	左键=压平顶点。
+MeasureTitle	测量
+MeasureLength	长度
+MeasureAngle	角度
+MeasurePerimeter	周长
+MeasurePerimeterAuto	自动
+MeasureThick	厚度
+MeasureObject	对象
+MeasureThickColor	厚度上色
+MeasureThickErr	无法在该位置测量厚度。
+MeasureColorGrayscale	灰度
+MeasureColorReverse	反色
+MeasureDir	方向
+MeasureDirNormal	法线
+MeasureDirEye	视线
+MeasureDirRadial	放射
+MeasureArea	显示面积
+MeasureNonPlanar	（非平面）
+MeasureClear	清除
+MeasureMes	左键=添加或移动点。
+MeasureMes1	左键=添加点。右键=取消。退格键=删除上一点。
+MeasureMes2	左键=添加点。右键=完成。退格键=删除上一点。
+ViewTitle	视角
+ViewZoom	缩放
+ViewZoomMes	左键+上下=缩放。
+ViewMove	平移
+ViewMoveMes	左键=平移。
+ViewRotate	旋转
+ViewRotateMes	左键=旋转。Shift+左键=慢速旋转。
+ViewPers	透视
+ViewPersMes	左键+上下=调整透视。
+ViewDolly	推拉
+ViewDollyMes	左键+上下=推拉。
+ViewClipPlane	剪切面
+ViewClipPlaneMoveMes	左键=移动剪切面。
+ViewClipPlaneRotateMes	左键=旋转剪切面。
+ViewClipPlaneFaceMes	左键=选择面。
+ViewClipPlaneFace	面
+ViewClipPlaneFlip	翻转
+ViewClipPlaneTargetFace	仅隐藏面
+ViewCuttingLine	显示切割线
+NoHidedFace	没有隐藏的面。
+NoSelV	没有选中的顶点。
+NoSelVF	没有选中的顶点和面。
+No2VObj	对象中未选中两个顶点。
+NoFixVF	没有固定的面或顶点。
+MergeFaceNoPair	请在对象中选择两个以上相邻的面。
+NoPairSymmetryVert	必须选择位于 YZ 平面两侧的两个顶点。
+AlignVertNoAxis	未选择轴。
+JoinClosedResult	已合并 %1 个顶点。
+JoinClosedFail	没有顶点被合并。
+FreezeFail	%1 没有可冻结的属性。
+ReducePoly4V	至少需要四个顶点。
+DoubleSidedFail	选中面已是双面。
+AlignFaceResult	已反转 %1 个面。
+AlignFaceFail	当前对象的面已对齐。
+PiledFaceResult	已删除 %1 个面。
+PiledFaceFail	当前对象没有重叠面。
+UnifyFaceResult	已删除 %1 个面。
+UnifyFaceFail	没有双面。
+AttachMatFail	当前对象的面均已有材质。
+BooleanNoTarget	未选择目标。
+BooleanNoIntersect	对象没有交集。
+FillByEdgeNoLine	不存在边线。
+StartNoSerial	免费使用
+StartInputSerial	输入序列号
+RegComp	%1认证完成。
+RegCompReboot	请重启 %1 以启用功能。
+RegCompEdition	已认证版本：%1
+RegCompWithoutEdition	认证完成。
+RegFail	序列号或密码错误。
+RegWriteFail	无法写入注册信息。
+RegReadFail	无法读取注册信息。
+RegClear	确定要清除注册信息吗？
+NoMapping	当前材质没有贴图。
+NoSelectMapping	请选择贴图。
+PaintBegin	确定要开始绘制吗？
+MapReadOnly	存在只读贴图文件。\n确定要继续吗？
+MapReload	确定要重新加载贴图吗？
+MapNoSelect	未选择贴图。
+MapFailCopy	复制贴图到剪贴板失败。
+MapFailPaste	从剪贴板粘贴贴图失败。
+MapFailSave	保存以下文件失败。
+ColPalLoadFail	加载调色板文件失败。
+ColPalSaveFail	保存调色板文件失败。
+KeyNone	无
+KeySpace	空格
+KeyListMenuFile	菜单 | 文件
+KeyListMenuEdit	菜单 | 编辑
+KeyListMenuAttr	菜单 | 属性
+KeyListMenuSelect	菜单 | 选择
+KeyListMenuObject	菜单 | 对象
+KeyListMenuView	菜单 | 视图
+KeyListMenuPanel	菜单 | 面板
+KeyListMenuHelp	菜单 | 帮助
+KeyListEditMode	编辑模式
+KeyListViewLayout	视图布局
+KeyListViewRecord	视角记录/恢复
+KeyListViewAngle	视角
+KeyListPanelCommand	命令
+KeyListPanelOption	编辑选项
+KeyListPanelLight	灯光
+KeyListSnap	吸附
+KeyListViewPers	3D 视图 | 透视
+KeyListViewTop	3D 视图 | 顶视
+KeyListViewFront	3D 视图 | 前视
+KeyListViewLeft	3D 视图 | 左视
+KeyListViewMenu	显示设置
+KeyListObjectPanel	对象面板
+KeyListMaterialPanel	材质面板
+KeyListScript	脚本
+ComSelect	选择
+ComRect	框选
+ComRope	套索
+ComMove	移动
+ComScale	缩放
+ComRotate	旋转
+ComLocalEdit	局部
+ComNormal	法线
+ComUVEdit	UV编辑
+ComMapping	贴图
+ComCreate	创建面
+ComDelete	删除
+ComInvert	反转
+ComExtrude	挤出
+ComMaterial	材质
+ComPullFace	拉面
+ComMagnet	磁石
+ComHole	孔洞
+ComEdge	边
+ComWeight	权重
+ComPaint	绘制
+ComSculpt	雕刻
+ComBlob	变形球
+ComVertexColor	顶点色
+ComPrimitive	基本体
+ComView	视角
+ComKnife	刀
+ComBackImage	背景图
+ComTwist	扭转
+ComLattice	晶格
+ComBevel	倒角
+ComBend	弯曲
+ComShear	剪切
+ComMeasure	测量
+ComSelect.Normal	通常
+ComSelect.Join	接合面
+ComSelect.Belt	带状
+ComSelect.EdgeLoop	连续边
+ComSelect.Grow	扩展
+ComSelect.Route	路径
+ComSelect.CurObj	现物指定
+ComSelect.Brush	刷选
+ComMove.Relative	相对
+ComMove.Absolute	绝对
+ComMove.Handle	手柄
+ComMove.Normal	法线
+ComScale.Handle	手柄
+ComScale.Box	框体
+ComScale.Default	默认
+ComScale.Screen	屏幕
+ComScale.Property	属性
+ComRotate.Handle	手柄
+ComRotate.Ball	轨迹球
+ComRotate.Screen	屏幕
+ComRotate.X	X 轴
+ComRotate.Y	Y 轴
+ComRotate.Z	Z 轴
+ComRotate.Property	属性
+ComDelete.Single	单个面
+ComDelete.Connect	接合面
+ComInvert.Single	单个面
+ComInvert.Connect	接合面
+ComExtrude.Normal	法线
+ComExtrude.Bevel	倒角
+ComMaterial.Single	单个面
+ComMaterial.Connect	接合面
+ComPullFace.Tri	三角形
+ComPullFace.Quad	四边形
+ComHole.Fill	填补孔洞
+ComHole.Bridge	桥接
+ComEdge.Add	添加
+ComEdge.Erase	消去
+ComEdge.Divide	分割
+ComEdge.Swap	交换
+ComKnife.Knife	刀
+ComKnife.Saw	锯
+ComKnife.Hole	开孔
+ComKnife.DivBelt	连续切
+ComKnife.JoinBelt	连续消
+ComSculpt.Draw	拉起
+ComSculpt.Inflate	膨胀
+ComSculpt.Smooth	平滑
+ComSculpt.Flatten	压平
+ComSculpt.Grab	抓握
+ComView.Zoom	缩放
+ComView.Move	平移
+ComView.Rotate	旋转
+ComView.Pers	透视
+ComView.Dolly	推拉
+ComView.ClipPlane	剪切面
+ComLocalEdit.Move	移动
+ComLocalEdit.Rotate	旋转
+ComLocalEdit.Scale	缩放
+ComNormal.SelectDefault	点|线|面
+ComNormal.SelectApex	角点
+ComNormal.ShowNormal	显示法线
+ComNormal.Move	移动
+ComNormal.Rotate	旋转
+ComNormal.Unify	统一
+ComNormal.Average	平均化
+ComNormal.Transcript	转录
+ComNormal.Fix	固定
+ComNormal.Unfix	重置
+ComNormal.Crease	折痕
+ComNormal.Uncrease	取消折痕
+ComUVEdit.Vertex	点
+ComUVEdit.Face	面
+ComUVEdit.Apex	角点
+ComUVEdit.3DVertex	3D-点
+ComUVEdit.3DFace	3D-面
+ComUVEdit.3DApex	3D-角点
+ComUVEdit.Select	选择
+ComUVEdit.Expand	扩展
+ComUVEdit.Brush	刷选
+ComUVEdit.Rect	框选
+ComUVEdit.Rope	套索
+ComUVEdit.Move	移动
+ComUVEdit.Rotate	旋转
+ComUVEdit.Scale	缩放
+ComUVEdit.Magnet	磁石
+ComUVEdit.Lattice	晶格
+ComUVEdit.Relax	松弛
+ComUVEdit.Split	分离
+ComUVEdit.Stitch	缝合
+ComUVEdit.Straighten	拉直
+ComUVEdit.Slide	顶点滑动
+ComUVEdit.Unwrap	自动展开
+ComUVEdit.UnwrapExecute	执行展开
+ComUVEdit.Flat	平面映射
+ComUVEdit.Cylinder	圆柱映射
+ComUVEdit.Sphere	球面映射
+ComUVEdit.Normalize	重复归一
+ComUVEdit.NormalizeSize	归一组大小
+ComUVEdit.Unify	合并
+ComUVEdit.Separate	分离
+ComUVEdit.Symmetrize	对称化
+ComUVEdit.Projection	投影
+ComUVEdit.Align	对齐
+ComUVEdit.AlignU	对齐 U
+ComUVEdit.AlignV	对齐 V
+ComUVEdit.FlipU	翻转 U
+ComUVEdit.FlipV	翻转 V
+ComUVEdit.Switch	旋转 UV
+ComUVEdit.Invert	反转 UV
+ComUVEdit.Copy	复制
+ComUVEdit.Paste	粘贴
+ComUVEdit.MirrorCopy	镜像复制
+ComUVEdit.Transcript	转录
+ComUVEdit.ImageStore	存储图像
+ComUVEdit.ImageRepack	重排图像
+ComUVEdit.OutputFile	导出
+ComUVEdit.SymmetryCenter	对称中心
+ComUVEdit.Config	设置
+ScenePers	透视
+SceneOrtho	正交
+SceneTop	顶视
+SceneFront	前视
+SceneLeft	左视
+SceneBottom	底视
+SceneBack	后视
+SceneRight	右视
+EditPoint	点
+EditLine	线
+EditFace	面
+EditRect	框选
+EditRope	套索
+EditCurObj	当前对象
+EditGrid	网格
+EditSymmetry	对称
+ViewPersRender	透视图渲染器
+ViewMeshYZ	透视图 YZ 网格
+ViewMeshZX	透视图 ZX 网格
+ViewMeshXY	透视图 XY 网格
+ViewAxis	透视图坐标轴
+ViewMesh3	三视图网格
+View3View	三视图渲染器
+ViewPersLabel	透视图标签
+ViewPersPoint	点
+ViewPersLine	线
+ViewPersFace	面
+ViewPersSimple	简
+ViewPersFront	正
+ViewPersBkImg	图
+ViewTopLabel	顶视图标签
+ViewTopPoint	点
+ViewTopLine	线
+ViewTopFace	面
+ViewTopSimple	简
+ViewTopFront	正
+ViewTopBkImg	图
+ViewFrontLabel	前视图标签
+ViewFrontPoint	点
+ViewFrontLine	线
+ViewFrontFace	面
+ViewFrontSimple	简
+ViewFrontFront	正
+ViewFrontBkImg	图
+ViewLeftLabel	左视图标签
+ViewLeftPoint	点
+ViewLeftLine	线
+ViewLeftFace	面
+ViewLeftSimple	简
+ViewLeftFront	正
+ViewLeftBkImg	图
+ObjPanelCreate	新建
+ObjPanelDelete	删除
+ObjPanelProperty	属性
+ObjPanelClone	克隆
+ObjPanelOtherHide	仅显示当前
+ObjPanelAllShow	全部显示
+ObjPanelOtherLock	锁定非当前
+ObjPanelUnlock	全部解锁
+ObjPanelMergeAll	合并全部
+ObjPanelMergeAllVisible	合并可见
+ObjPanelSelectCurrent	选择顶点/面
+ObjPanelUnselectCurrent	取消顶点/面
+ObjPanelShowColor	显示颜色
+ObjPanelShowFolding	显示折叠
+ObjPanelEditChild	同时编辑子级
+ObjPanelVisible	切换可见性
+ObjPanelLock	切换锁定
+MatPanelCreate	新建
+MatPanelDelete	删除
+MatPanelProperty	属性
+MatPanelClone	克隆
+MatPanelDeleteUnused	删除未使用材质
+MatPanelDeleteAll	全部删除
+MatPanelLoad	从文件载入
+MatPanelSave	保存到文件
+MatPanelSetDefault	设为默认
+MatPanelSelectCurrent	选择顶点/面
+MatPanelUnselectCurrent	取消顶点/面
+UndoObjectCreate	创建对象
+UndoObjectClone	克隆对象
+UndoObjectDelete	删除对象
+UndoObjectMerge	合并对象
+UndoObjectInsert	交换对象顺序
+UndoObjectProp	对象属性
+UndoObjectHierarchy	对象层级
+UndoObjectName	对象名称
+UndoObjectColor	对象颜色
+UndoMaterialProp	材质属性
+UndoMaterialLoad	载入材质文件
+UndoMaterialCreate	创建材质
+UndoMaterialClone	克隆材质
+UndoMaterialDelete	删除材质
+UndoMaterialMerge	合并材质
+UndoMaterialMove	移动材质
+UndoMaterialDeleteUnused	删除未使用材质
+UndoMaterialDeleteAll	删除全部材质
+MenuHide	隐藏选中面
+MenuHideUnsel	隐藏未选中面
+MenuShowHided	显示隐藏面
+MenuFix	固定顶点
+MenuUnfix	取消固定顶点
+MenuCut	剪切
+MenuCopy	复制
+MenuPaste	粘贴
+MenuDelete	删除
+MenuInvertFace	反转
+MenuDoubleSideFace	双面
+MenuFaceMaterial	为面指定材质
+MenuPushFace	挤出面
+MenuMirrorFace	镜像
+MenuFaceToNewObj	移动面到新对象
+MenuMergeFace	合并选中的相邻面
+MenuJoinVertex	合并顶点
+MenuTriangulate	三角化
+MenuSymmetryVertex	对称
+MenuAlignVertex	对齐/平坦化顶点
+MenuFlatten	平坦化
+MenuRound	圆整
+MenuUniformDivide	均匀分割
+MenuUniformDivide.Number	分割数
+MenuLandscape	地形
+MenuFreeze	冻结
+MenuShiftPosition	移动位置
+MenuJoinClosed	合并重合顶点
+MenuMeshSmooth	网格细分平滑
+MenuFillByEdge	填充边线围合区域
+MenuAlignFace	对齐面
+MenuPiledFace	删除重叠面
+MenuUnifyFace	统一面
+MenuReducePolyon	减少多边形
+MenuNoMatFace	指定材质
+MenuBoolean	布尔运算
+SelNormalHint	通常的顶点/边/面选择。
+SelJoinHint	点击顶点/边/面，选中与其相连的所有面。
+SelBeltHint	点击一条边，带状选择顶点与面。
+SelEdgeLoopHint	连续选择相连的边。
+SelGrowHint	连续选择相邻的顶点/边/面。
+SelRouteHint	沿两点间最短路径连续选择。
+SelCurObjHint	将点击面所在对象设为当前对象。
+SelBrushHint	用圆形笔刷涂抹选择。
+MoveRelHint	按相对偏移量移动。
+MoveAbsHint	显示并指定绝对坐标。
+MoveLocalHint	以局部坐标系显示并指定位置。
+MoveWorldHint	以世界坐标系显示并指定位置。
+UVVertex.Hint	在 3D 视图中按顶点选择。
+UVFace.Hint	在 3D 视图中按面选择。
+UVApex.Hint	在 3D 视图中按角点选择。
+UVSelect.Hint	选择 UV 顶点。
+UVExpand.Hint	扩展 UV 顶点选择。
+UVBrush.Hint	用笔刷涂抹选择 UV 顶点。
+UVRect.Hint	框选 UV 顶点。
+UVRope.Hint	套索选择 UV 顶点。
+UVMove.Hint	移动 UV 顶点。
+UVRotate.Hint	旋转 UV 顶点。
+UVScale.Hint	缩放 UV 顶点。
+UVMagnet.Hint	将附近的 UV 顶点一起移动。
+UVLattice.Hint	用晶格变形 UV 顶点。
+UVRelax.Hint	调整 UV 顶点使其接近 3D 形状。
+UVSplit.Hint	沿边分离 UV 顶点。
+UVStitch.Hint	沿边缝合 UV 顶点。
+UVStraighten.Hint	将 UV 顶点沿边排成一条直线。
+UVSlide.Hint	保持 UV 外观不变移动 3D 顶点。
+UVAutoUnwrap.Hint	选择切缝后自动展开。
+UVFlat.Hint	平面投影。
+UVCylinder.Hint	圆柱投影。
+UVSphere.Hint	球面投影。
+UVNormalize.Hint	将 UV 顶点移动到 0~1 范围内。
+UVNormalizeSize.Hint	按 3D 距离调整各 UV 组大小。
+UVUnify.Hint	将 UV 顶点合并到同一位置。
+UVSeparate.Hint	分离同一位置上的 UV 顶点。
+UVSymmetrize.Hint	将成对 UV 顶点移到对称位置。
+UVProject.Hint	将 3D 视图中的位置直接投影到 UV。
+UVAlign.Hint	水平或垂直对齐选中 UV 顶点。
+UVAlignU.Hint	对齐选中 UV 顶点的 U 坐标。
+UVAlignV.Hint	对齐选中 UV 顶点的 V 坐标。
+UVFlipU.Hint	水平翻转 UV 顶点。
+UVFlipV.Hint	垂直翻转 UV 顶点。
+UVCopy.Hint	复制选中面的 UV。
+UVPaste.Hint	粘贴 UV 到选中面。
+UVMirrorCopy.Hint	将翻转的 UV 复制到对称面。
+UVTranscript.Hint	将 UV 复制到另一对象。
+UVImageStore.Hint	存储当前 UV 与贴图状态以便重排。
+UVImageRepack.Hint	按当前 UV 重新排列已存储的图像。
+UVSwitch.Hint	旋转面内 UV。
+UVInvert.Hint	反转面内 UV。
+UVOutputFile.Hint	将展开图导出为图像文件。
+UVSymmetryCenter.Hint	用一或两个以上选中 UV 顶点设置对称中心。
+UVConfig.Hint	UV 编辑设置。
+UVUnwrapUsePin.Hint	固定选中 UV 顶点并重新展开。
+UVUnwrapModeUnwrap.Hint	选择切缝自动展开 UV。
+UVUnwrapModePin.Hint	选择钉点固定顶点并调整展开结果。
+CreateLineHint	用 2 个点创建线。
+CreateTriHint	用 3 个点创建三角形。
+CreateQuadHint	用 4 个点创建四边形。
+CreatePolygonHint	用 5 个以上的点创建多边形。
+ExtrdInsetNoneHint	无角。
+ExtrdInsetLinearHint	直角。
+ExtrdInsetRoundHint	圆角。
+ExtrdInsetBentHint	凹角。
+PullFace3Hint	创建三角形。
+PullFace4Hint	创建四边形。
+HoleFillHint	点击开口边，在内侧创建面。
+HoleBridgeHint	在两个孔洞之间创建桥接面。
+EdgeAddEdgeHint	添加边，将一个面分割为两个面。
+EdgeEraseEdgeHint	消去边，将两个面合并。
+EdgeDivideHint	插入顶点将边一分为二。
+EdgeSwapHint	交换两个三角形共享的对角线。
+KnifeKnifeHint	以直线切割面。
+KnifeSawHint	将矩形内的部分分离为新对象。
+KnifeHoleHint	按点击位置开孔。
+KnifeStraightHint	连续切割多个面。
+KnifeChainHint	连续消去四边形之间的边并接合。
+WeightVertexHint	设置 Spline 曲面的顶点权重。
+WeightCreaseHint	设置 Catmull-Clark 曲面的折痕。
+WeightSemiCreaseHint	设置 OpenSubdiv 曲面的顶点/边权重。
+MeasureLengthHint	测量折线长度。
+MeasureAngleHint	用 3 个点测量角度。
+MeasurePerimeterHint	测量点击边处的周长。
+MeasureThickHint	测量点击位置的厚度。
+MeasureObjectHint	测量点击对象的尺寸。
+MeasureThickColorHint	以顶点色显示厚度。
+MeasureDirNormalHint	沿面的法线方向测量。
+MeasureDirEyeHint	沿视线方向测量。
+MeasureDirRadialHint	向多个方向放射状测量。
+MeasureClearHint	清除全部测量。
+ComboEditMode.Basic	初学者
+ComboEditMode.Standard	建模（文字）
+ComboEditMode.Standard.Short	建模
+ComboEditMode.StandardIcon	建模（图标）
+ComboEditMode.StandardIcon.Short	建模
+ComboEditMode.Mapping	贴图
+ComboEditModeCustomize	自定义
+PanelLock.Text	锁定选择
+GroupSystem.Text	系统
+BtnOpen.Hint	打开文件。
+BtnOpen.Text	打开
+BtnSave.Hint	保存文件。
+BtnSave.Text	保存
+BtnSaveAs.Hint	另存为新文件。
+BtnSaveAs.Text	另存
+BtnConfig.Hint	打开环境设置。
+BtnConfig.Text	设置
+BtnInsert.Hint	插入文件。
+BtnInsert.Text	插入
+BtnDocInfo.Hint	文档信息。
+BtnDocInfo.Text	信息
+BtnObjectPanel.Hint	显示对象面板。
+BtnObjectPanel.Text	对象
+BtnMaterialPanel.Hint	显示材质面板。
+BtnMaterialPanel.Text	材质
+BtnObjectProperty.Hint	对象属性。
+BtnObjectProperty.Text	对象属性
+BtnMaterialProperty.Hint	材质属性。
+BtnMaterialProperty.Text	材质属性
+PanelFile.Text	文件
+GroupEdit.Text	编辑
+BtnUndo.Hint	撤销上一步操作。
+BtnUndo.Text	撤销
+BtnRedo.Hint	重做已撤销的操作。
+BtnRedo.Text	重做
+BtnSelectAll.Hint	全部选择。
+BtnSelectAll.Text	全选
+BtnUnselectAll.Hint	全部取消选择。
+BtnUnselectAll.Text	全不选
+BtnSelectCurObj.Hint	选择当前对象。
+BtnSelectCurObj.Text	选对象
+BtnHideFace.Hint	隐藏选中面（+Shift：未选中面）。
+BtnHideFace.Text	隐藏
+BtnSelectCurMat.Hint	选择当前材质。
+BtnSelectCurMat.Text	选材质
+BtnShowFace.Hint	显示隐藏面。
+BtnShowFace.Text	显示
+BtnFix.Hint	固定面和顶点。
+BtnFix.Text	固定
+BtnUnfix.Hint	取消固定面和顶点。
+BtnUnfix.Text	取消固定
+BtnStore1.Hint	存储选择
+BtnStore2.Hint	存储选择
+BtnStore3.Hint	存储选择
+BtnStore4.Hint	存储选择
+TextStore.Text	存储
+TextRestore.Text	恢复
+BtnRestore1.Hint	恢复选择
+BtnRestore2.Hint	恢复选择
+BtnRestore3.Hint	恢复选择
+BtnRestore4.Hint	恢复选择
+GroupCommand.Text	命令
+PanelComEdit.Text	编辑
+BtnComSelect.Hint	选择元素。
+BtnComSelect.Text	选择
+BtnComRect.Hint	框选。
+BtnComRect.Text	框选
+BtnComRope.Hint	套索（自由形状）选择。
+BtnComRope.Text	套索
+BtnComMove.Hint	移动选中元素。
+BtnComMove.Text	移动
+BtnComScale.Hint	缩放选中元素。
+BtnComScale.Text	缩放
+BtnComRotate.Hint	旋转选中元素。
+BtnComRotate.Text	旋转
+BtnComLocalEdit.Hint	编辑对象的局部轴。
+BtnComLocalEdit.Text	局部
+BtnComUVEdit.Hint	编辑 UV 坐标。
+BtnComUVEdit.Text	UV
+BtnComMapping.Hint	为选中元素贴图。
+BtnComMapping.Text	贴图
+PanelComFace.Text	面
+BtnComPrimitive.Hint	创建基本体。
+BtnComPrimitive.Text	基本体
+BtnComCreate.Hint	创建面。
+BtnComCreate.Text	创建面
+BtnComDeleteFace.Hint	删除面。
+BtnComDeleteFace.Text	删除
+BtnComInvert.Hint	反转面。
+BtnComInvert.Text	反转
+BtnComExtrude.Hint	挤出选中面。
+BtnComExtrude.Text	挤出
+BtnComMaterial.Hint	为面指定材质。
+BtnComMaterial.Text	材质
+PanelComLine.Text	线・点
+BtnComPullFace.Hint	从选中边拉伸出面。
+BtnComPullFace.Text	拉面
+BtnComBevel.Hint	在选中边上创建倒角。
+BtnComBevel.Text	倒角
+BtnComMagnet.Hint	磁性移动顶点。
+BtnComMagnet.Text	磁石
+BtnComTwist.Hint	绕轴扭转选中元素。
+BtnComTwist.Text	扭转
+PanelComMisc.Text	杂项
+BtnComBend.Hint	弯曲选中元素。
+BtnComBend.Text	弯曲
+BtnComShear.Hint	将选中元素按角度剪切。
+BtnComShear.Text	剪切
+BtnComLattice.Hint	用晶格变形移动顶点。
+BtnComLattice.Text	晶格
+BtnComHole.Hint	填补孔洞或桥接两个孔。
+BtnComHole.Text	孔洞
+BtnComEdge.Hint	添加/消去边以分割/合并面。
+BtnComEdge.Text	边
+BtnComKnife.Hint	用刀切割。
+BtnComKnife.Text	刀
+BtnComWeight.Hint	设置顶点权重。
+BtnComWeight.Text	权重
+BtnComVertexColor.Hint	顶点色。
+BtnComVertexColor.Text	顶点色
+BtnComSculpt.Hint	雕刻（增删顶点、边、面）。
+BtnComSculpt.Text	雕刻
+BtnComBlob.Hint	编辑变形球对象。
+BtnComBlob.Text	变形球
+BtnComMapPaint.Hint	绘制贴图位图。
+BtnComMapPaint.Text	绘制
+BtnComBackImage.Hint	变换背景图。
+BtnComBackImage.Text	背景图
+BtnComMeasure.Hint	测量长度或角度。
+BtnComMeasure.Text	测量
+BtnComView.Hint	切换视角。
+BtnComView.Text	视角
+BtnComNormal.Hint	编辑法线。
+BtnComNormal.Text	法线
+GroupOption.Text	编辑选项
+BtnSnapWorld.Hint	沿世界坐标系编辑。
+BtnSnapWorld.Text	世
+BtnSnapScreen.Hint	沿屏幕坐标系编辑。
+BtnSnapScreen.Text	屏
+BtnEditPoint.Hint	启用点选择。\n(Shift+点击 = 仅点)
+BtnEditPoint.Text	点
+BtnEditLine.Hint	启用线选择。\n(Shift+点击 = 仅线)
+BtnEditLine.Text	线
+BtnEditFace.Hint	启用面选择。\n(Shift+点击 = 仅面)
+BtnEditFace.Text	面
+BtnEditRect.Hint	启用框选。
+BtnEditRect.Text	框
+BtnEditCurObj.Hint	仅编辑当前对象。
+BtnEditCurObj.Text	现物
+BtnEditSnap.Hint	将顶点吸附到指定目标。
+BtnEditSnap.Text	吸附
+MenuSnapClear.Text	全部清除
+MenuSnapGrid.Hint	吸附到网格。
+MenuSnapGrid.Text	网格
+MenuSnapPlane.Hint	吸附到指定平面。
+MenuSnapPlane.Text	平面
+MenuSnapVertex.Hint	吸附到顶点。
+MenuSnapVertex.Text	顶点
+MenuSnapLine.Hint	吸附到边线。
+MenuSnapLine.Text	线
+MenuSnapFace.Hint	吸附到面。
+MenuSnapFace.Text	面
+BtnEditSymmetry.Hint	对称编辑。
+BtnEditSymmetry.Text	对称
+BtnEditRope.Hint	启用套索选择。
+BtnEditRope.Text	套
+BtnSnapLocal.Hint	沿局部坐标系编辑。
+BtnSnapLocal.Text	局
+MenuDisplayEachView.Text	各视图分别设置
+MenuDisplayAllView.Text	所有视图
+MenuDisplayMeshYZ.Text	YZ 平面
+MenuDisplayMeshYZ.Hint	在 3D 视图中显示 YZ 平面。
+MenuDisplayMeshZX.Text	ZX 平面
+MenuDisplayMeshZX.Hint	在 3D 视图中显示 ZX 平面。
+MenuDisplayMeshXY.Text	XY 平面
+MenuDisplayMeshXY.Hint	在 3D 视图中显示 XY 平面。
+MenuDisplayMesh3.Text	XY/YZ/ZX 平面
+MenuDisplayMesh3.Hint	在 3D 视图中显示 XY/YZ/ZX 平面。
+MenuDisplayRuler.Text	标尺
+MenuDisplayRuler.Hint	在 X/Y/Z 轴上按间隔显示刻度。
+MenuDisplayAxis.Text	坐标轴
+MenuDisplayAxis.Hint	显示 X/Y/Z 坐标轴。
+MenuDisplaySymmetryPlane.Text	对称平面
+MenuDisplaySymmetryPlane.Hint	显示对称平面。
+MenuDisplayBkImage.Text	背景图
+MenuDisplayBkImage.Hint	在 3D 视图后方显示背景图。
+MenuDisplayAlpha.Text	半透明
+MenuDisplayAlpha.Hint	是否显示半透明对象。
+MenuDisplayAlphaDisable.Text	禁用
+MenuDisplayAlphaDisable.Hint	所有对象变为不透明。
+MenuDisplayAlphaEnable.Text	启用
+MenuDisplayAlphaEnable.Hint	启用半透明混合。
+MenuDisplayAlphaOIT.Text	正确深度
+MenuDisplayAlphaOIT.Hint	以正确深度显示半透明对象。
+MenuDisplayTexture.Text	纹理
+MenuDisplayTexture.Hint	是否在对象上显示纹理。
+MenuDisplayShader.Text	着色器
+MenuDisplayShader.Hint	是否为材质应用着色器。
+MenuDisplayShaderEnable.Text	启用
+MenuDisplayShaderDisableEdge.Text	无边线
+MenuDisplayShaderDisable.Text	禁用
+MenuDisplaySmooth.Text	平滑着色
+MenuDisplaySmooth.Hint	是否以平滑着色显示。
+MenuDisplayLighting.Text	光照方向/颜色
+MenuDisplayLighting.Hint	是否应用灯光的方向与颜色。
+MenuDisplayShadow.Text	阴影
+MenuDisplayShadow.Hint	是否显示阴影。
+MenuDisplaySSAO.Text	遮蔽
+MenuDisplaySSAO.Hint	是否使遮蔽区域变暗（SSAO）。
+MenuDisplayClipPlane.Text	剪切面
+MenuDisplayClipPlane.Hint	是否用任意平面剪切视图。
+MenuDisplayReset.Text	重置
+MenuDisplayReset.Hint	将 3D 视图恢复为初始状态。
+GroupLight.Text	灯光
+CheckBackLight.Text	背光
+BtnLightBack.Hint	上一个灯光。
+BtnLightNext.Hint	下一个灯光。
+BtnLightAdd.Hint	添加灯光。
+BtnLightDelete.Hint	删除灯光。
+BtnLightPreset.Hint	灯光预设。
+MenuLightPresetRegister.Text	注册预设
+MenuLightPresetEdit.Text	编辑预设
+MenuLightEdit.Text	灯光设置
+BtnLightColor.Text	颜色
+BtnMatcap.Hint	Matcap\n以球面图像着色显示。
+BtnEnvmap.Hint	环境贴图\n显示背景并用于环境光。
+BtnViewPoint.Hint	显示点。\n(Shift+点击 = 仅点)
+BtnViewPoint.Text	点
+BtnViewLine.Hint	显示线。\n(Shift+点击 = 仅线)
+BtnViewLine.Text	线
+BtnViewFace.Hint	显示面。\n(Shift+点击 = 仅面)
+BtnViewFace.Text	面
+BtnViewSimple.Hint	简单显示曲面与变形球。
+BtnViewSimple.Text	简
+BtnViewFront.Hint	仅显示正面边线。
+BtnViewFront.Text	正
+BtnViewDisplay.Hint	选择显示项目。
+BtnViewDisplay.Text	显示
+BtnViewSync.Hint	与其他视图同步。
+BtnViewSync.Text	同步
+MenuFile.Text	文件
+MenuNew.Text	新建
+MenuOpen.Text	打开
+MenuExplore.Text	文件浏览器
+MenuSave.Text	保存
+MenuSaveIncerment.Text	递增编号保存
+MenuSaveAs.Text	另存为
+MenuInsert.Text	插入
+MenuRendering.Text	渲染
+MenuConfig.Text	环境设置
+MenuLoadLatest.Text	最近的文件
+MenuEdit.Text	编辑
+MenuUndo.Text	撤销
+MenuRedo.Text	重做
+MenuSelectAll.Text	全部选择
+MenuSelectVertexInvert.Text	反转全部顶点选择
+MenuSelectFaceInvert.Text	反转全部面选择
+MenuUnselectAll.Text	全部取消选择
+MenuSelObjAll.Text	选择当前对象全部
+MenuSelObjVertexInvert.Text	反转当前对象顶点选择
+MenuSelObjFaceInvert.Text	反转当前对象面选择
+MenuUnselObjAll.Text	取消当前对象全部
+MenuSelMatAll.Text	选择当前材质全部面
+MenuUnselMatAll.Text	取消当前材质全部面
+MenuLockSelect.Text	锁定选择
+MenuSelectAttr.Text	属性
+MenuHide.Text	隐藏选中面
+MenuHideUnsel.Text	隐藏未选中面
+MenuShowHided.Text	显示隐藏面
+MenuFix.Text	固定选中顶点
+MenuUnfix.Text	取消固定顶点
+MenuFixSelect.Text	固定选择
+MenuStoreSelect.Text	存储选择
+MenuStoreSelect1.Text	部分 1
+MenuStoreSelect2.Text	部分 2
+MenuStoreSelect3.Text	部分 3
+MenuStoreSelect4.Text	部分 4
+MenuRestoreSelect.Text	恢复选择
+MenuRestoreSelect1.Text	部分 1
+MenuRestoreSelect2.Text	部分 2
+MenuRestoreSelect3.Text	部分 3
+MenuRestoreSelect4.Text	部分 4
+MenuRotateCenter.Text	设置旋转中心
+MenuFitView.Text	适配视图
+MenuEdgeCrease.Text	Catmull-Clark 边折痕
+MenuSelectProc.Text	选择处理
+MenuCut.Text	剪切
+MenuCopy.Text	复制
+MenuPaste.Text	粘贴
+MenuDelete.Text	删除
+MenuInvertFace.Text	反转
+MenuDoubleSideFace.Text	双面
+MenuFaceMaterial.Text	为面指定材质
+MenuPushFace.Text	挤出面
+MenuMirrorFace.Text	镜像
+MenuFaceToNewObj.Text	移动面到新对象
+MenuMergeFace.Text	合并选中的相邻面
+MenuTriangulateSelected.Text	三角化
+MenuSymmetryVertex.Text	对称
+MenuJoinVertex.Text	合并顶点
+MenuAlignVertex.Text	对齐/平坦化顶点
+MenuFlatten.Text	平坦化
+MenuRound.Text	圆整
+MenuUniformDivide.Text	均匀分割
+MenuObject.Text	对象
+MenuCreate.Text	创建
+MenuLandscape.Text	地形
+MenuFreeze.Text	冻结
+MenuShiftPos.Text	移动位置
+MenuJoinNear.Text	合并重合顶点
+MenuReducePolygon.Text	减少多边形
+MenuMeshSmooth.Text	网格细分/平滑
+MenuBoolean.Text	布尔运算
+MenuFillByEdge.Text	填充边线围合区域
+MenuAlignFace.Text	对齐面
+MenuDeletePiledFace.Text	删除重叠面
+MenuUnifyFace.Text	统一面
+MenuNoMatFace.Text	为无材质面指定当前材质
+MenuDocInfo.Text	文档信息
+MenuFaceCurrent.Text	仅显示当前对象的面
+MenuLineUncurrent.Text	显示非当前对象的边线
+MenuLineUncurrentNormal.Text	通常
+MenuLineUncurrentDark.Text	变暗
+MenuLineUncurrentHidden.Text	隐藏
+MenuShowSelect.Text	仅显示选中部分
+MenuOverwriteFace.Text	边线覆盖在面上
+MenuBackFaceForceDisplay.Text	强制显示背面
+MenuErrorEdge.Text	高亮开放边
+MenuSubdivWire.Text	显示细分线框
+MenuDisplayUnit.Text	显示单位
+MenuDisplayUnitNone.Text	无
+MenuDisplayUnitMM.Text	毫米
+MenuDisplayUnitCM.Text	厘米
+MenuDisplayUnitM.Text	米
+MenuDisplayUnitInch.Text	英寸
+MenuDisplayUnitFeet.Text	英尺
+MenuPanel.Text	面板
+MenuSecondView.Text	第二视图
+MenuPaintPanel.Text	绘制面板
+MenuScriptEditor.Text	脚本编辑器
+MenuObjectPanel.Text	对象面板
+MenuMaterialPanel.Text	材质面板
+MenuViewPanel.Text	视图面板
+MenuToolPanel.Text	工具面板
+MenuEditPanel.Text	编辑面板
+MenuCommandPanel.Text	命令面板
+MenuHelp.Text	帮助
+MenuHelpIndex.Text	目录
+MenuGuidance.Text	首次使用指南
+MenuAbout.Text	关于
+MenuPlugIn.Text	关于插件
+MenuDebug.Text	错误窗口
+MenuBenchmark.Text	性能测试
+MenuHomepage.Text	官网 metaseq.net
+MenuUpdateCheck.Text	检查更新
+MenuRegister.Text	许可证认证
+MenuSimplePatch.Text	补丁
+MenuSimpleMirror.Text	镜像
+MenuSimpleLathe.Text	旋转体
+MenuSimpleBlob.Text	变形球
+MenuPers.Text	透视
+MenuOrtho.Text	正交
+MenuViewTypeTop.Text	顶视图
+MenuViewTypeFront.Text	前视图
+MenuViewTypeLeft.Text	左视图
+MenuViewTypeBottom.Text	底视图
+MenuViewTypeBack.Text	后视图
+MenuViewTypeRight.Text	右视图
+MenuViewSeparator.Text	视角
+MenuViewDirTop.Text	顶视
+MenuViewDirFront.Text	前视
+MenuViewDirLeft.Text	左视
+MenuViewDirBottom.Text	底视
+MenuViewDirBack.Text	后视
+MenuViewDirRight.Text	右视
+MenuViewCapture.Text	捕获并保存
+MenuDisplayDevice.Text	渲染器
+MenuDisplayMQR.Text	软件渲染
+MenuDisplayD3D11.Text	Direct3D 11
+MenuDisplayOpenGL.Text	OpenGL
+MenuDisplayMetal.Text	Metal
+MenuToolPanelRegister.Text	注册到工具面板
+MenuKeyRegister.Text	注册快捷键
+MenuViewSplitRegister.Text	注册当前布局
+MenuViewSplitReset.Text	重置分割位置
+MenuShowShortcutKey.Text	在按钮上显示快捷键
+DlgAbout.Text	版本信息
+ExternalPage.Text	外部软件
+DlgAlignVertex.Text	顶点对齐
+DlgSetBkImage.Text	设置背景图
+DlgConfig.Text	环境设置
+DlgDocInfo.Text	文档信息
+DlgExplore.Text	文件浏览器
+DlgObject.Text	对象属性
+DlgMaterial.Text	材质属性
+DlgGrid.Text	网格设置
+DlgFreeze.Text	冻结
+DlgMirror.Text	镜像
+DlgLattice.Text	晶格
+DlgBoolean.Text	布尔运算
+DlgFlatten.Text	平坦化
+DlgJoinNearVertex.Text	合并重合顶点
+DlgLandscape.Text	地形
+DlgReducePolygon.Text	减少多边形
+DlgMeshSmooth.Text	网格细分平滑
+DlgObjectClone.Text	克隆对象
+DlgLocalProperty.Text	局部轴属性
+DlgMapProperty.Text	贴图属性
+DlgUVProperty.Text	UV 属性
+FormMatPanel.Text	材质面板
+FormObjPanel.Text	对象面板
+LabelFile.Text	文件名
+BtnLoad.Text	载入
+BtnOk.Text	确定
+GroupAlign.Text	对齐到轴
+RadioGlobal.Text	全局坐标
+RadioLocal.Text	局部坐标
+LabelMin.Text	最小
+LabelMax.Text	最大
+LabelPosition.Text	新位置
+LabelApply.Text	应用
+GroupPlanate.Text	平坦化・直线化
+RadioPlanate.Text	平坦化到最佳拟合平面
+RadioLinearize.Text	直线化到最佳拟合直线

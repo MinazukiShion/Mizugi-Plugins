@@ -1,0 +1,17 @@
+3ds,"3D Studio",right,back,up
+animas,"Animation Master",left,back,up
+blender,"Blender",right,up,front
+bryce,"Bryce",left,back,up
+carrra,"Carrara",front,right,up
+c4d,"Cinema4D",right,up,back
+d3d,"Direct3D",right,up,back
+doga,"DoGA CGA System",front,right,up
+lw,"LightWave3D",right,up,back
+maya,"Maya",right,up,front
+povray,"POV-Ray",right,up,back
+rhino,"Rhinoceros",right,back,up
+ts,"trueSpace",left,front,up
+shade,"Shade",left,back,up
+si,"Softimage",right,up,front
+vrml,"VRML",right,back,up
+rok,"Rokkaku daioh",left,down,back

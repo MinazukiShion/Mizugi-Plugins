@@ -1,0 +1,38 @@
+SmoothingGroup — 水杉(Metasequoia 4)平滑组插件 v1.0
+=====================================================
+
+给水杉增加 3ds Max 式平滑组工作流（原版没有的功能）。
+
+【安装】
+将 SmoothingGroup.dll 复制到：
+  %APPDATA%\tetraface\Metasequoia4_x64\Plugins\Command\
+（即 C:\Users\<你的用户名>\AppData\Roaming\tetraface\Metasequoia4_x64\Plugins\Command\，
+没有就新建该文件夹。也可放入安装目录的同名 Plugins\Command\，需要管理员权限。）
+
+重启水杉后，命令面板最下方出现「平滑组」按钮（建模/建模图标模式下）。
+点击打开面板。
+
+【功能】
+- 32 组数字按钮：选中面 → 点组号归入该组；所有选中面已在该组时再点 = 移出
+- 所属组高亮：选中面涉及的组号显示「N●」
+- 工具内选择：左键=选择/取消，Shift=加选，Ctrl=减选，拖动=连续选择，
+  悬停=轮廓高亮；右键/中键仍是水杉原生视角操作
+- 按组选择 / 清除选中 / 全部清除
+- 自动分组：按面法线夹角自动划分（角度阈值可调），完成后自动上色预览
+- 按组上色 / 清除颜色：六色循环预览（顶点色通道，材质开关自动处理）
+- 法线预览：自带法线（原生自动）/ 平滑组 / 组合
+- 导出 OBJ：按所选模式现算法线写出（v/vn/f）
+- 持久化：组数据随 .mqo/.mqoz 文件保存（插件 XML 段），重开自动恢复
+
+【环境】
+- Metasequoia 4（建议 4.8+，实测 4.9.1）
+- Windows 64 位
+- 界面为简体中文；建议水杉环境设置的字体设为「微软雅黑」以正确显示
+
+【源码】
+SmoothingGroup.cpp（单文件）+ build.bat。
+使用官方 SDK（mqsdk491a）+ MSVC 编译：
+  build.bat 中的 vcvars64.bat 路径与 SDK 路径按本机修改后运行即可。
+构建脚本会把 DLL 输出到当前目录。
+
+Copyright: 本插件为独立开发；Metasequoia 及其 SDK 版权归 tetraface Inc. 所有。
