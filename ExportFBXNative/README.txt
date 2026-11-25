@@ -1,4 +1,4 @@
-ExportFBXNative — 水杉(Metasequoia 4)FBX 导出插件 v2.2.1
+ExportFBXNative — 水杉(Metasequoia 4)FBX 导出插件 v2.3
 ==========================================================
 
 场景感知的 FBX 7.4 二进制导出器，不依赖 FBX SDK。
@@ -14,8 +14,9 @@ ExportFBXNative — 水杉(Metasequoia 4)FBX 导出插件 v2.2.1
 - 完整场景层级与对象变换（TRS）
 - 单位声明修复（v2.2.1）：旧版顶点按米写出却声明厘米（UnitScaleFactor=1），
   导入 DCC 后整体缩小 100 倍；现已修正为 UnitScaleFactor=100
-- 硬边/软边：折痕标记 ∪ 平滑组判定 → LayerElementSmoothing，
-  与 SmoothingGroup 插件 v3.3+ 的「选择锐边」语义完全一致
+- 平滑组（v2.3）：网格带平滑组数据时按面写出 32 位组位掩码（ByPolygon），
+  3ds Max 导入后直接还原为 1–32 号平滑组；纯折痕网格回退 ByEdge 0/1
+  （Blender 锐边路径），与 SmoothingGroup 插件 v3.3+ 的「选择锐边」语义一致
 - UV 层与贴图：Material / Texture / Video 节点及连接一并写出
 - 附带 validate_fbx.py：导出后结构自检（节点数、连接表、平滑/UV 层覆盖等）
 

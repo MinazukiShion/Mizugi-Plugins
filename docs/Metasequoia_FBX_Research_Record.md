@@ -1052,3 +1052,23 @@ python -m py_compile validate_fbx_smoothing.py
 ------------------------------------------------------------------------
 
 **文档结束**
+
+## 16. ExportFBXNative v2.3：3ds Max 兼容的平滑组导出（2026-11-26）
+
+**问题**：v2.2.x 的 `LayerElementSmoothing` 一律写 `ByEdge` + 0/1 硬边标志。
+这套语义 Blender 能读（锐边），但 3ds Max 的 FBX 导入器只认
+`ByPolygon` + 每面 32 位组位掩码（bit N = 第 N+1 组），ByEdge 层在 Max 里
+完全不产生平滑组。
+
+**方案**：平滑组插件的 `faceMask` 本身就是逐面 uint32 位掩码，导出器一直在读
+（用于硬边判定）却没写出来。v2.3 把它存进 `MeshData::faceMasks` 并分流：
+
+- 网格带平滑组数据（`smoothingMode&2`）→ 写 `ByPolygon`/`Direct` 位掩码数组，
+  Max 导入后直接还原 1–32 号平滑组；
+- 纯折痕网格（`smoothingMode==1`）→ 维持 `ByEdge` 0/1（Blender 锐边路径）；
+- 无数据 → 维持写显式法线。
+
+已知取舍：折痕 ∪ 平滑组的混合场景里，「共享组但打了折痕」的边在 Max 端
+会显示为软边（Max 只认组掩码，没有逐边硬度通道）；这类边要么在 Max 里
+补打，要么拆到不同组。validate_fbx.py 同步放宽为按映射类型分流校验
+（ByPolygon 要求数量=多边形数；ByEdge 要求数量=棱数且值∈{0,1}）。

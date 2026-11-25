@@ -2,7 +2,7 @@
 setlocal
 
 echo ==========================================
-echo ExportFBXNative v2.2.1 - MSVC Build
+echo ExportFBXNative v2.3 - MSVC Build
 echo ==========================================
 
 REM Visual Studio 18 Community
@@ -42,7 +42,7 @@ if errorlevel 1 (
 if not exist "%OUT%" mkdir "%OUT%"
 
 echo.
-echo Compiling ExportFBXNative v2.2.1...
+echo Compiling ExportFBXNative v2.3...
 
 cl /nologo /std:c++17 /EHsc /O2 /W3 /utf-8 /D "_WINDOWS" /LD ^
   /I "%SDK%" ^

@@ -281,12 +281,18 @@ def validate(path):
                 sref=pval(first(smnode,'ReferenceInformationType'))
                 if isinstance(smap,bytes): smap=smap.decode('utf-8','replace')
                 if isinstance(sref,bytes): sref=sref.decode('utf-8','replace')
-                if smap!='ByEdge' or sref!='Direct':
-                    errors.append("Geometry %s smoothing must be ByEdge/Direct (got %s/%s)" % (geom,smap,sref))
-                elif edges is None or len(sm)!=len(pval(edges,0,[])):
-                    errors.append("Geometry %s smoothing count %d does not match Edges count" % (geom,len(sm)))
-                elif any(v not in (0,1) for v in sm):
-                    errors.append("Geometry %s smoothing values must be 0 or 1" % geom)
+                if sref!='Direct' or smap not in ('ByEdge','ByPolygon'):
+                    errors.append("Geometry %s smoothing must be ByEdge or ByPolygon/Direct (got %s/%s)" % (geom,smap,sref))
+                elif smap=='ByPolygon':
+                    # 3ds Max smoothing groups: one 32-bit group bitmask per polygon.
+                    if len(sm)!=polygon_count:
+                        errors.append("Geometry %s smoothing count %d does not match polygon count %d" % (geom,len(sm),polygon_count))
+                else:
+                    # Crease-only path: 0/1 hard-edge flag per edge.
+                    if edges is None or len(sm)!=len(pval(edges,0,[])):
+                        errors.append("Geometry %s smoothing count %d does not match Edges count" % (geom,len(sm)))
+                    elif any(v not in (0,1) for v in sm):
+                        errors.append("Geometry %s smoothing values must be 0 or 1" % geom)
             layer=first(g,'Layer')
             if not layer or pval(layer,0) != 0:
                 errors.append("Geometry %s Layer index missing or not zero" % geom)

@@ -27,12 +27,13 @@
 
 见 `ImportFBX/README.txt`。
 
-## 项目三：ExportFBXNative（FBX 导出插件）v2.2.1
+## 项目三：ExportFBXNative（FBX 导出插件）v2.3
 
 场景感知的 FBX 7.4 二进制导出器（不依赖 FBX SDK）：
 
 - 完整场景层级与对象变换（TRS），单位声明正确（厘米）
-- 硬边 = 折痕 ∪ 平滑组，与 SmoothingGroup 插件「选择锐边」语义完全一致
+- 平滑组按面写出 32 位位掩码，3ds Max 导入直接还原 1–32 号平滑组；
+  纯折痕网格回退 ByEdge 锐边（Blender 路径）
 - UV 层与贴图（Material / Texture / Video 节点）一并导出
 - 附带 validate_fbx.py 导出结构自检脚本
 
@@ -56,7 +57,7 @@
 
 - `SmoothingGroup_v3.4.zip`：平滑组插件分发包（DLL + 源码 + 说明）
 - `ImportFBX_v1.5.zip`：FBX 导入插件分发包
-- `ExportFBXNative_v2.2.1.zip`：FBX 导出插件分发包
+- `ExportFBXNative_v2.3.zip`：FBX 导出插件分发包
 - `SmoothingGroup_v1.0.zip`、`Metasequoia_中文语言包_v1.0.zip`：历史版本
 
 ---

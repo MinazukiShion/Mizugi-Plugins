@@ -3,7 +3,8 @@
 // Scene-aware FBX 7.4 binary exporter.
 // Implements mesh/object hierarchy, local transforms, per-face materials,
 // per-corner smooth normals, all available UV channels, and edge indices.
-// Explicit creases and smoothing-group masks are unified into ByEdge smoothing
+// Smoothing-group masks are written as ByPolygon 32-bit bitmasks (3ds Max reads
+// them directly as smoothing groups); crease-only meshes fall back to ByEdge 0/1.
 // (creases force sharp; SG masks form the base layer).
 // Material textures (diffuse/alpha/bump) are exported as external file
 // references (Video + Texture nodes) with UV set binding.
@@ -261,7 +262,7 @@ struct UVSetData { UINT id; std::string name; bool valid; std::vector<double> uv
 struct MeshData {
     MQObject obj; int sourceIndex; bool hasMesh; std::string name;
     int64_t modelId,geomId,attributeId; MQPoint scale,trans; MQAngle rot;
-    std::vector<double> vertices,normals; std::vector<int32_t> polygonIndices,edges,faceMaterials,smoothing;
+    std::vector<double> vertices,normals; std::vector<int32_t> polygonIndices,edges,faceMaterials,smoothing,faceMasks;
     std::vector<UVSetData> uvSets; std::vector<int> usedMaterials;
     int smoothingMode;
     double bboxMin[3],bboxMax[3];
@@ -451,6 +452,7 @@ static bool BuildMeshData(MQDocument doc,MQObject sceneObj,MQObject geometryObj,
             if(m.smoothingMode&2)edgeIncidents[edgeIndex].masks.push_back(faceMask);
         }
         m.faceMaterials.push_back(mat);
+        m.faceMasks.push_back((int32_t)faceMask);
     }
     if(m.polygonIndices.empty()){m.hasMesh=false;return true;}
     if(m.smoothingMode){
@@ -502,7 +504,12 @@ static void WriteGeometry(FbxWriter &w,const MeshData &m){
     w.Begin("Edges");w.PropI32Array(m.edges);w.End();
     if(m.smoothingMode==0){
         w.Begin("LayerElementNormal");w.PropI32(0);w.Begin("Version");w.PropI32(101);w.End();w.Begin("Name");w.PropStr("");w.End();w.Begin("MappingInformationType");w.PropStr("ByPolygonVertex");w.End();w.Begin("ReferenceInformationType");w.PropStr("Direct");w.End();w.Begin("Normals");w.PropF64Array(m.normals);w.End();w.End(true);
+    }else if(m.smoothingMode&2){
+        // Smoothing-group data present: write ByPolygon 32-bit group bitmasks,
+        // which 3ds Max imports directly as smoothing groups.
+        w.Begin("LayerElementSmoothing");w.PropI32(0);w.Begin("Version");w.PropI32(101);w.End();w.Begin("Name");w.PropStr("");w.End();w.Begin("MappingInformationType");w.PropStr("ByPolygon");w.End();w.Begin("ReferenceInformationType");w.PropStr("Direct");w.End();w.Begin("Smoothing");w.PropI32Array(m.faceMasks);w.End();w.End(true);
     }else{
+        // Crease-only meshes: ByEdge 0/1 hard-edge flags (Blender sharp edges).
         w.Begin("LayerElementSmoothing");w.PropI32(0);w.Begin("Version");w.PropI32(101);w.End();w.Begin("Name");w.PropStr("");w.End();w.Begin("MappingInformationType");w.PropStr("ByEdge");w.End();w.Begin("ReferenceInformationType");w.PropStr("Direct");w.End();w.Begin("Smoothing");w.PropI32Array(m.smoothing);w.End();w.End(true);
     }
     for(size_t i=0;i<m.uvSets.size();i++){
@@ -541,7 +548,7 @@ static void WriteMaterial(FbxWriter &w,const MaterialData &md){
 class ExportFBXNativePlugin : public MQExportPlugin {
 public:
     virtual void GetPlugInID(DWORD *Product,DWORD *ID){*Product=0x4642584E;*ID=0x59D21C4B;}
-    virtual const char *GetPlugInName(void){return "FBX Export (native) v2.2.1 (scene and mesh fidelity)";}
+    virtual const char *GetPlugInName(void){return "FBX Export (native) v2.3 (Max-compatible smoothing groups)";}
     virtual const char *EnumFileType(int i){return i==0?"FBX (binary, native)":NULL;}
     virtual const char *EnumFileExt(int i){return i==0?"fbx":NULL;}
     virtual BOOL ExportFile(int,const wchar_t *filename,MQDocument doc){return WriteFBX(filename,doc)?TRUE:FALSE;}
@@ -614,10 +621,10 @@ bool ExportFBXNativePlugin::WriteFBX(const wchar_t *path,MQDocument doc){
     SYSTEMTIME now;GetSystemTime(&now);
     w.Begin("FBXHeaderExtension");w.Begin("FBXHeaderVersion");w.PropI32(1003);w.End();w.Begin("FBXVersion");w.PropI32(7400);w.End();w.Begin("EncryptionType");w.PropI32(0);w.End();
     w.Begin("CreationTimeStamp");w.Begin("Version");w.PropI32(1000);w.End();w.Begin("Year");w.PropI32(now.wYear);w.End();w.Begin("Month");w.PropI32(now.wMonth);w.End();w.Begin("Day");w.PropI32(now.wDay);w.End();w.Begin("Hour");w.PropI32(now.wHour);w.End();w.Begin("Minute");w.PropI32(now.wMinute);w.End();w.Begin("Second");w.PropI32(now.wSecond);w.End();w.Begin("Millisecond");w.PropI32(now.wMilliseconds);w.End();w.End(true);
-    w.Begin("Creator");w.PropStr("ExportFBXNative v2.2.1");w.End();w.End(true);
+    w.Begin("Creator");w.PropStr("ExportFBXNative v2.3");w.End();w.End(true);
     unsigned char fid[16]={0};FILETIME ft;GetSystemTimeAsFileTime(&ft);memcpy(fid,&ft,8);DWORD pid=GetCurrentProcessId(),tick=GetTickCount();memcpy(fid+8,&pid,4);memcpy(fid+12,&tick,4);std::vector<unsigned char> fidv(fid,fid+16);
     char ct[64];sprintf(ct,"%04u-%02u-%02u %02u:%02u:%02u:%03u",(unsigned)now.wYear,(unsigned)now.wMonth,(unsigned)now.wDay,(unsigned)now.wHour,(unsigned)now.wMinute,(unsigned)now.wSecond,(unsigned)now.wMilliseconds);
-    w.Begin("FileId");w.PropRaw(fidv);w.End();w.Begin("CreationTime");w.PropStr(ct);w.End();w.Begin("Creator");w.PropStr("ExportFBXNative v2.2.1");w.End();
+    w.Begin("FileId");w.PropRaw(fidv);w.End();w.Begin("CreationTime");w.PropStr(ct);w.End();w.Begin("Creator");w.PropStr("ExportFBXNative v2.3");w.End();
     w.Begin("GlobalSettings");w.Begin("Version");w.PropI32(1000);w.End();w.Begin("Properties70");
     PInt(w,"UpAxis",1);PInt(w,"UpAxisSign",1);PInt(w,"FrontAxis",2);PInt(w,"FrontAxisSign",1);PInt(w,"CoordAxis",0);PInt(w,"CoordAxisSign",1);PInt(w,"OriginalUpAxis",-1);PInt(w,"OriginalUpAxisSign",1);
     PScalar(w,"UnitScaleFactor","double","Number","",100.0);PScalar(w,"OriginalUnitScaleFactor","double","Number","",100.0);
