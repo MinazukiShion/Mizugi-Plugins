@@ -1,6 +1,6 @@
 //---------------------------------------------------------------------------
 //
-//   SmoothingGroup for Metasequoia  v3.0
+//   SmoothingGroup for Metasequoia  v3.4
 //
 //     3ds Max style smoothing groups (per Autodesk official docs):
 //       - 32 numbered buttons grid; click assigns selected faces to the group
@@ -22,6 +22,8 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <set>
+#include <algorithm>
 #include "MQBasePlugin.h"
 #include "MQWidget.h"
 
@@ -30,6 +32,7 @@ HINSTANCE g_hInstance;
 #define SG_PRODUCT 0x53473031
 #define SG_PLUGIN  0x7C49A2E1
 #define SG_UDATA_NAME "sgmask"
+#define SG_EDGE_STATE_NAME "edge_state"
 #define SG_MAX_GROUP 32
 
 #define SG_NORMAL_BUILTIN 0
@@ -38,8 +41,14 @@ HINSTANCE g_hInstance;
 
 static void SGLog(const char *fmt, ...)
 {
-	// Release: no-op. 调试时恢复下面的 fopen 实现。
-	(void)fmt;
+	FILE *fp = fopen("D:\Mizuho\sg_debug.log", "a");
+	if (!fp) return;
+	va_list ap;
+	va_start(ap, fmt);
+	vfprintf(fp, fmt, ap);
+	va_end(ap);
+	fputc('\n', fp);
+	fclose(fp);
 }
 
 class SGWindow;
@@ -82,9 +91,12 @@ public:
 	void ToggleAssignGroup(MQDocument doc, int group);
 	void ClearGroup(MQDocument doc, bool selectedOnly);
 	void SelectByGroup(MQDocument doc, int group);
-	void AutoGroup(MQDocument doc, float angleDeg);
+	void AutoGroup(MQDocument doc, float angleDeg, bool selectedOnly);
 	void Colorize(MQDocument doc, bool enable, const std::vector<char>* onlyObjs = nullptr);
 	void CreasePreview(MQDocument doc, int mode, float angleDeg, const std::vector<char>* onlyObjs = nullptr);
+	void SelectSharpEdges(MQDocument doc, bool byAngle, float angleDeg);
+	void SetCreaseSelected(MQDocument doc, bool mark);
+	void GroupByCrease(MQDocument doc);
 	void ExportOBJ(MQDocument doc, int mode, float angleDeg);
 	void RefreshGroupList();
 
@@ -170,6 +182,82 @@ static void AnalyzeObject(MQObject obj, int uid, ObjInfo& info)
 	}
 }
 
+static unsigned long long EdgeKey(int a, int b)
+{
+	return a < b ? ((unsigned long long)a << 32 | (unsigned)b)
+	             : ((unsigned long long)b << 32 | (unsigned)a);
+}
+
+static bool FacesShareEdgeAtVertex(const ObjInfo& info, int f1, int f2, int vertex)
+{
+	int nv = (int)info.fverts[f1].size();
+	for (int i = 0; i < nv; i++){
+		int a = info.fverts[f1][i], b = info.fverts[f1][(i + 1) % nv];
+		if (a != vertex && b != vertex) continue;
+		auto it = info.edgeFaces.find(EdgeKey(a, b));
+		if (it == info.edgeFaces.end()) continue;
+		for (const auto &fc : it->second)
+			if (fc.first == f2) return true;
+	}
+	return false;
+}
+
+static bool SmoothPair(const ObjInfo& info, int f1, int f2, int mode, float cosT)
+{
+	if (f1 == f2) return true;
+	float d = info.fnorm[f1][0] * info.fnorm[f2][0]
+	        + info.fnorm[f1][1] * info.fnorm[f2][1]
+	        + info.fnorm[f1][2] * info.fnorm[f2][2];
+	if (mode == SG_NORMAL_BUILTIN) return d >= cosT;
+	if ((info.fmask[f1] & info.fmask[f2]) == 0) return false;
+	return mode != SG_NORMAL_BOTH || d >= cosT;
+}
+
+static std::vector<MQPoint> ComputeCornerNormals(const ObjInfo& info, int mode, float cosT)
+{
+	int nf = (int)info.fverts.size();
+	std::vector<int> offsets(nf + 1, 0);
+	std::map<int, std::vector<int> > vertFaces;
+	for (int fi = 0; fi < nf; fi++){
+		offsets[fi + 1] = offsets[fi] + (int)info.fverts[fi].size();
+		for (int v : info.fverts[fi]) vertFaces[v].push_back(fi);
+	}
+
+	std::vector<MQPoint> result(offsets[nf]);
+	std::vector<int> visited(nf, 0), stack;
+	int visitToken = 0;
+	for (int fi = 0; fi < nf; fi++){
+		int nvf = (int)info.fverts[fi].size();
+		for (int i = 0; i < nvf; i++){
+			int vertex = info.fverts[fi][i];
+			const auto &candidates = vertFaces[vertex];
+			float acc[3] = {0, 0, 0};
+			stack.clear();
+			stack.push_back(fi);
+			visited[fi] = ++visitToken;
+			while (!stack.empty()){
+				int f = stack.back(); stack.pop_back();
+				acc[0] += info.fnorm[f][0];
+				acc[1] += info.fnorm[f][1];
+				acc[2] += info.fnorm[f][2];
+				for (int f2 : candidates){
+					if (visited[f2] == visitToken) continue;
+					if (!FacesShareEdgeAtVertex(info, f, f2, vertex)) continue;
+					if (!SmoothPair(info, f, f2, mode, cosT)) continue;
+					visited[f2] = visitToken;
+					stack.push_back(f2);
+				}
+			}
+			float len = sqrtf(acc[0]*acc[0] + acc[1]*acc[1] + acc[2]*acc[2]);
+			if (len > 1e-12f)
+				result[offsets[fi] + i] = MQPoint(acc[0]/len, acc[1]/len, acc[2]/len);
+			else
+				result[offsets[fi] + i] = MQPoint(info.fnorm[fi][0], info.fnorm[fi][1], info.fnorm[fi][2]);
+		}
+	}
+	return result;
+}
+
 //---------------------------------------------------------------------------
 // window
 //---------------------------------------------------------------------------
@@ -209,6 +297,7 @@ public:
 		m_AngleSpin->SetPosition(45);
 		m_AngleSpin->AddChangedEvent(this, &SGWindow::OnAngleChanged);
 		m_BtnAuto = CreateButton(row4, L"自动分组");
+		m_BtnAutoSel = CreateButton(row4, L"选区分组");
 
 		MQFrame *row5 = CreateHorizontalFrame(frame);
 		m_BtnColor   = CreateButton(row5, L"按组上色");
@@ -219,6 +308,13 @@ public:
 		m_BtnNrmBuiltin = CreateButton(row6, L"自带法线");
 		m_BtnNrmSG      = CreateButton(row6, L"平滑组");
 		m_BtnNrmBoth    = CreateButton(row6, L"组合");
+
+		CreateLabel(frame, L"锐边工具");
+		MQFrame *rowE = CreateHorizontalFrame(frame);
+		m_BtnSharpSel    = CreateButton(rowE, L"选择锐边");
+		m_BtnCreaseSet   = CreateButton(rowE, L"标记折痕");
+		m_BtnCreaseClr   = CreateButton(rowE, L"清除折痕");
+		m_BtnGroupCrease = CreateButton(rowE, L"按折痕分组");
 
 		MQFrame *row7 = CreateHorizontalFrame(frame);
 		m_ExportMode = CreateComboBox(row7);
@@ -232,12 +328,17 @@ public:
 		m_BtnClearSel->AddClickEvent(this, &SGWindow::OnClearSel);
 		m_BtnClearAll->AddClickEvent(this, &SGWindow::OnClearAll);
 		m_BtnAuto->AddClickEvent(this, &SGWindow::OnAuto);
+		m_BtnAutoSel->AddClickEvent(this, &SGWindow::OnAutoSel);
 		m_BtnColor->AddClickEvent(this, &SGWindow::OnColor);
 		m_BtnUncolor->AddClickEvent(this, &SGWindow::OnUncolor);
 		m_BtnNrmBuiltin->AddClickEvent(this, &SGWindow::OnNrmBuiltin);
 		m_BtnNrmSG->AddClickEvent(this, &SGWindow::OnNrmSG);
 		m_BtnNrmBoth->AddClickEvent(this, &SGWindow::OnNrmBoth);
 		m_BtnExport->AddClickEvent(this, &SGWindow::OnExport);
+		m_BtnSharpSel->AddClickEvent(this, &SGWindow::OnSharpSel);
+		m_BtnCreaseSet->AddClickEvent(this, &SGWindow::OnCreaseSet);
+		m_BtnCreaseClr->AddClickEvent(this, &SGWindow::OnCreaseClr);
+		m_BtnGroupCrease->AddClickEvent(this, &SGWindow::OnGroupCrease);
 	}
 
 	SmoothingGroupPlugin *m_Plugin;
@@ -245,9 +346,10 @@ public:
 	int m_CurrentGroup = 1;
 	MQSpinBox *m_AngleSpin;
 	MQComboBox *m_ExportMode;
-	MQButton *m_BtnSelect, *m_BtnClearSel, *m_BtnClearAll, *m_BtnAuto;
+	MQButton *m_BtnSelect, *m_BtnClearSel, *m_BtnClearAll, *m_BtnAuto, *m_BtnAutoSel;
 	MQButton *m_BtnColor, *m_BtnUncolor;
 	MQButton *m_BtnNrmBuiltin, *m_BtnNrmSG, *m_BtnNrmBoth, *m_BtnExport;
+	MQButton *m_BtnSharpSel, *m_BtnCreaseSet, *m_BtnCreaseClr, *m_BtnGroupCrease;
 
 	BOOL OnGroup(MQWidgetBase *s, MQDocument doc)
 	{
@@ -269,13 +371,18 @@ public:
 	BOOL OnSelect(MQWidgetBase *s, MQDocument doc)  { SGLog("BTN select t=%u", GetTickCount()); m_Plugin->SelectByGroup(doc, CurrentGroup()); return TRUE; }
 	BOOL OnClearSel(MQWidgetBase *s, MQDocument doc){ m_Plugin->ClearGroup(doc, true);  return TRUE; }
 	BOOL OnClearAll(MQWidgetBase *s, MQDocument doc){ m_Plugin->ClearGroup(doc, false); return TRUE; }
-	BOOL OnAuto(MQWidgetBase *s, MQDocument doc)    { SGLog("BTN auto t=%u", GetTickCount()); m_Plugin->AutoGroup(doc, (float)m_AngleSpin->GetPosition()); return TRUE; }
+	BOOL OnAuto(MQWidgetBase *s, MQDocument doc)    { SGLog("BTN auto t=%u", GetTickCount()); m_Plugin->AutoGroup(doc, (float)m_AngleSpin->GetPosition(), false); return TRUE; }
+	BOOL OnAutoSel(MQWidgetBase *s, MQDocument doc) { SGLog("BTN autosel t=%u", GetTickCount()); m_Plugin->AutoGroup(doc, (float)m_AngleSpin->GetPosition(), true); return TRUE; }
 	BOOL OnColor(MQWidgetBase *s, MQDocument doc)   { SGLog("BTN color t=%u", GetTickCount()); m_Plugin->Colorize(doc, true);  return TRUE; }
 	BOOL OnUncolor(MQWidgetBase *s, MQDocument doc) { m_Plugin->Colorize(doc, false); return TRUE; }
 	BOOL OnNrmBuiltin(MQWidgetBase *s, MQDocument doc) { m_Plugin->m_PreviewMode = SG_NORMAL_BUILTIN; m_Plugin->CreasePreview(doc, SG_NORMAL_BUILTIN, m_Plugin->m_Angle); return TRUE; }
 	BOOL OnNrmSG(MQWidgetBase *s, MQDocument doc)      { m_Plugin->m_PreviewMode = SG_NORMAL_SG; m_Plugin->CreasePreview(doc, SG_NORMAL_SG, m_Plugin->m_Angle);      return TRUE; }
 	BOOL OnNrmBoth(MQWidgetBase *s, MQDocument doc)    { m_Plugin->m_PreviewMode = SG_NORMAL_BOTH; m_Plugin->CreasePreview(doc, SG_NORMAL_BOTH, m_Plugin->m_Angle);    return TRUE; }
 	BOOL OnExport(MQWidgetBase *s, MQDocument doc)     { m_Plugin->ExportOBJ(doc, m_ExportMode->GetCurrentIndex(), m_Plugin->m_Angle); return TRUE; }
+	BOOL OnSharpSel(MQWidgetBase *s, MQDocument doc)   { m_Plugin->SelectSharpEdges(doc, false, m_Plugin->m_Angle); return TRUE; }
+	BOOL OnCreaseSet(MQWidgetBase *s, MQDocument doc)  { m_Plugin->SetCreaseSelected(doc, true); return TRUE; }
+	BOOL OnCreaseClr(MQWidgetBase *s, MQDocument doc)  { m_Plugin->SetCreaseSelected(doc, false); return TRUE; }
+	BOOL OnGroupCrease(MQWidgetBase *s, MQDocument doc){ m_Plugin->GroupByCrease(doc); return TRUE; }
 
 	int CurrentGroup()
 	{
@@ -303,7 +410,7 @@ void SmoothingGroupPlugin::GetPlugInID(DWORD *Product, DWORD *ID)
 
 const char *SmoothingGroupPlugin::GetPlugInName(void)
 {
-	return "Smoothing Group v3.0";
+	return "Smoothing Group v3.4";
 }
 
 const wchar_t *SmoothingGroupPlugin::EnumString(void)
@@ -329,7 +436,9 @@ BOOL SmoothingGroupPlugin::Activate(MQDocument doc, BOOL flag)
 		m_Doc = doc;
 		EnsureUserData(doc);
 		if (m_Window == NULL){
+			SGLog("creating SGWindow...");
 			m_Window = new SGWindow(MQWindow::GetSystemWidgetID(MQSystemWidget::OptionPanel), this);
+			SGLog("SGWindow=%p", (void*)m_Window);
 			m_Window->SetTitle(L"平滑组");
 			POINT size = m_Window->GetJustSize();
 			m_Window->SetWidth(size.x);
@@ -549,12 +658,12 @@ void SmoothingGroupPlugin::SelectByGroup(MQDocument doc, int group)
 	RedrawAllScene();
 }
 
-void SmoothingGroupPlugin::AutoGroup(MQDocument doc, float angleDeg)
+void SmoothingGroupPlugin::AutoGroup(MQDocument doc, float angleDeg, bool selectedOnly)
 {
 	int uid = EnsureUserData(doc);
 	if (uid <= 0) return;
 	float cosT = cosf(angleDeg * 3.14159265f / 180.0f);
-	int totalGroups = 0;
+	int totalIslands = 0, maxGroupUsed = 0, overflowRegions = 0, candidateFaces = 0;
 
 	int numObj = doc->GetObjectCount();
 	for (int oi = 0; oi < numObj; oi++){
@@ -566,40 +675,119 @@ void SmoothingGroupPlugin::AutoGroup(MQDocument doc, float angleDeg)
 		int nf = (int)info.fverts.size();
 		if (nf == 0) continue;
 
-		std::vector<char> visited(nf, 0);
-		int group = 0;
+		// 候选面集合：全对象或仅选中面
+		std::vector<char> cand(nf, 0);
+		int ncand = 0;
+		for (int fi = 0; fi < nf; fi++){
+			if (info.fverts[fi].empty()) continue;
+			if (selectedOnly && !FaceSelected(doc, oi, obj, fi)) continue;
+			cand[fi] = 1;
+			ncand++;
+		}
+		if (ncand == 0) continue;
+		candidateFaces += ncand;
+
+		// 1) 洪泛成岛（只在候选面之间，按角度阈值合并）
+		std::vector<int> faceIsland(nf, -1);
+		std::vector< std::vector<int> > islands;
 		for (int start = 0; start < nf; start++){
-			if (visited[start] || info.fverts[start].empty()) continue;
-			group++;
-			if (group > 31) group = 31;
-			unsigned int bit = 1u << (group - 1);
+			if (!cand[start] || faceIsland[start] >= 0) continue;
+			int id = (int)islands.size();
+			islands.push_back(std::vector<int>());
 			std::vector<int> stack(1, start);
-			visited[start] = 1;
+			faceIsland[start] = id;
 			while (!stack.empty()){
 				int f = stack.back(); stack.pop_back();
-				obj->SetFaceUserData(uid, f, &bit);
+				islands[id].push_back(f);
 				int nv = (int)info.fverts[f].size();
 				for (int i = 0; i < nv; i++){
 					int a = info.fverts[f][i], b = info.fverts[f][(i + 1) % nv];
-					unsigned long long key = a < b ?
-						((unsigned long long)a << 32 | (unsigned)b) :
-						((unsigned long long)b << 32 | (unsigned)a);
-					for (auto &fc : info.edgeFaces[key]){
+					for (auto &fc : info.edgeFaces[EdgeKey(a, b)]){
 						int g = fc.first;
-						if (visited[g] || info.fverts[g].empty()) continue;
+						if (!cand[g] || faceIsland[g] >= 0) continue;
 						float d = info.fnorm[f][0] * info.fnorm[g][0] + info.fnorm[f][1] * info.fnorm[g][1] + info.fnorm[f][2] * info.fnorm[g][2];
 						if (d >= cosT){
-							visited[g] = 1;
+							faceIsland[g] = id;
 							stack.push_back(g);
 						}
 					}
 				}
 			}
 		}
-		totalGroups += group;
+		int ni = (int)islands.size();
+		totalIslands += ni;
+
+		// 2) 岛间冲突图（共边即冲突）+ 非候选邻面已有组作为禁用位
+		std::vector< std::set<int> > conf(ni);
+		std::vector<unsigned int> forbid(ni, 0);
+		for (int f = 0; f < nf; f++){
+			if (!cand[f]) continue;
+			int nv = (int)info.fverts[f].size();
+			for (int i = 0; i < nv; i++){
+				int a = info.fverts[f][i], b = info.fverts[f][(i + 1) % nv];
+				for (auto &fc : info.edgeFaces[EdgeKey(a, b)]){
+					int g = fc.first;
+					if (g == f || info.fverts[g].empty()) continue;
+					if (cand[g]){
+						int i1 = faceIsland[f], i2 = faceIsland[g];
+						if (i1 != i2 && i1 >= 0 && i2 >= 0){
+							conf[i1].insert(i2);
+							conf[i2].insert(i1);
+						}
+					}else{
+						// 选区模式：边界外的面保持原样，其已占用的组不能
+						// 分配给相邻的岛，否则边界边会被意外平滑
+						unsigned int m = 0;
+						obj->GetFaceUserData(uid, g, &m);
+						if (faceIsland[f] >= 0) forbid[faceIsland[f]] |= m;
+					}
+				}
+			}
+		}
+
+		// 3) 贪心着色：大岛优先，分配编号最小且不与冲突岛/禁用位撞车的组
+		std::vector<int> order(ni);
+		for (int i = 0; i < ni; i++) order[i] = i;
+		std::sort(order.begin(), order.end(), [&](int x, int y){
+			return islands[x].size() > islands[y].size();
+		});
+		std::vector<int> assign(ni, -1); // 组序号 0..31；-1 = 未分配
+		for (int oi2 = 0; oi2 < ni; oi2++){
+			int id = order[oi2];
+			unsigned int used = forbid[id];
+			for (int other : conf[id])
+				if (assign[other] >= 0) used |= 1u << assign[other];
+			int g = 0;
+			while (g < SG_MAX_GROUP && (used & (1u << g))) g++;
+			if (g < SG_MAX_GROUP){
+				assign[id] = g;
+				if (g + 1 > maxGroupUsed) maxGroupUsed = g + 1;
+			}else{
+				overflowRegions++;
+			}
+		}
+
+		// 4) 写回掩码（未分配的面写 0）
+		for (int id = 0; id < ni; id++){
+			unsigned int bit = assign[id] >= 0 ? (1u << assign[id]) : 0u;
+			for (int f : islands[id])
+				obj->SetFaceUserData(uid, f, &bit);
+		}
 	}
-	wchar_t buf[128];
-	swprintf(buf, 128, L"自动分组完成：共 %d 组", totalGroups);
+	wchar_t buf[192];
+	if (selectedOnly){
+		if (candidateFaces == 0)
+			swprintf(buf, 192, L"选区自动分组：没有选中的面");
+		else if (overflowRegions > 0)
+			swprintf(buf, 192, L"选区自动分组完成：%d 个区域，占用 %d 组；%d 个区域超出 32 组上限，未分配", totalIslands, maxGroupUsed, overflowRegions);
+		else
+			swprintf(buf, 192, L"选区自动分组完成：%d 个区域，占用 %d 组", totalIslands, maxGroupUsed);
+	}else{
+		if (overflowRegions > 0)
+			swprintf(buf, 192, L"自动分组完成：%d 个区域，占用 %d 组；%d 个区域超出 32 组上限，未分配", totalIslands, maxGroupUsed, overflowRegions);
+		else
+			swprintf(buf, 192, L"自动分组完成：%d 个区域，占用 %d 组", totalIslands, maxGroupUsed);
+	}
 	SetStatusString(buf);
 	RefreshGroupList();
 	Colorize(doc, true);
@@ -678,37 +866,12 @@ void SmoothingGroupPlugin::CreasePreview(MQDocument doc, int mode, float angleDe
 		}
 
 		// SG/BOTH：写固定法线做组效果预览
-		// 顶点->面邻接表（避免 O(F^2)）
-		std::map<int, std::vector<int> > vertFaces;
-		for (int fi = 0; fi < nf; fi++)
-			for (int v : info.fverts[fi]) vertFaces[v].push_back(fi);
-
+		std::vector<MQPoint> cornerNormals = ComputeCornerNormals(info, mode, cosT);
+		int normalIndex = 0;
 		for (int fi = 0; fi < nf; fi++){
 			int nvf = (int)info.fverts[fi].size();
-			for (int i = 0; i < nvf; i++){
-				float acc[3] = {0, 0, 0};
-				for (int f2 : vertFaces[info.fverts[fi][i]]){
-					bool ok;
-					if (mode == SG_NORMAL_SG){
-						ok = (info.fmask[fi] & info.fmask[f2]) != 0 || f2 == fi;
-					}else{
-						float d = info.fnorm[fi][0] * info.fnorm[f2][0]
-						        + info.fnorm[fi][1] * info.fnorm[f2][1]
-						        + info.fnorm[fi][2] * info.fnorm[f2][2];
-						ok = ((info.fmask[fi] & info.fmask[f2]) != 0 || f2 == fi) && d >= cosT;
-					}
-					if (ok){
-						acc[0] += info.fnorm[f2][0];
-						acc[1] += info.fnorm[f2][1];
-						acc[2] += info.fnorm[f2][2];
-					}
-				}
-				float len = sqrtf(acc[0]*acc[0] + acc[1]*acc[1] + acc[2]*acc[2]);
-				MQPoint n;
-				if (len > 1e-12f) n = MQPoint(acc[0]/len, acc[1]/len, acc[2]/len);
-				else              n = MQPoint(info.fnorm[fi][0], info.fnorm[fi][1], info.fnorm[fi][2]);
-				obj->SetFaceVertexNormal(fi, i, MQOBJECT_NORMAL_FIX, n);
-			}
+			for (int i = 0; i < nvf; i++)
+				obj->SetFaceVertexNormal(fi, i, MQOBJECT_NORMAL_FIX, cornerNormals[normalIndex++]);
 		}
 		obj->UpdateNormal();  // 通知渲染器法线已变（否则 GPU 缓存不更新）
 	}
@@ -762,44 +925,10 @@ void SmoothingGroupPlugin::ExportOBJ(MQDocument doc, int mode, float angleDeg)
 			fprintf(fp, "v %.6f %.6f %.6f\n", p.x, p.y, p.z);
 		}
 
-		// corner normals: average faces sharing the vertex unless the edge between
-		// them is a boundary for the chosen mode
-		std::map<int, std::vector<int> > vertFaces;
-		for (int fi = 0; fi < nf; fi++)
-			for (int v : info.fverts[fi]) vertFaces[v].push_back(fi);
-
-		for (int fi = 0; fi < nf; fi++){
-			int nvf = (int)info.fverts[fi].size();
-			for (int i = 0; i < nvf; i++){
-				float acc[3] = {0, 0, 0};
-				for (int f2 : vertFaces[info.fverts[fi][i]]){
-					bool ok;
-					if (mode == SG_NORMAL_BUILTIN){
-						// 自带法线 = 按角度平滑（facet 语义），不是无脑平均
-						float d = info.fnorm[fi][0] * info.fnorm[f2][0]
-						        + info.fnorm[fi][1] * info.fnorm[f2][1]
-						        + info.fnorm[fi][2] * info.fnorm[f2][2];
-						ok = (f2 == fi) || (d >= cosT);
-					}else{
-						ok = (info.fmask[fi] & info.fmask[f2]) != 0 || f2 == fi;
-						if (ok && mode == SG_NORMAL_BOTH){
-							float d = info.fnorm[fi][0] * info.fnorm[f2][0]
-							        + info.fnorm[fi][1] * info.fnorm[f2][1]
-							        + info.fnorm[fi][2] * info.fnorm[f2][2];
-							ok = d >= cosT;
-						}
-					}
-					if (ok){
-						acc[0] += info.fnorm[f2][0];
-						acc[1] += info.fnorm[f2][1];
-						acc[2] += info.fnorm[f2][2];
-					}
-				}
-				float len = sqrtf(acc[0]*acc[0] + acc[1]*acc[1] + acc[2]*acc[2]);
-				float nx = info.fnorm[fi][0], ny = info.fnorm[fi][1], nz = info.fnorm[fi][2];
-				if (len > 1e-12f){ nx = acc[0]/len; ny = acc[1]/len; nz = acc[2]/len; }
-				fprintf(fp, "vn %.4f %.4f %.4f\n", nx, ny, nz);
-			}
+		std::vector<MQPoint> cornerNormals = ComputeCornerNormals(info, mode, cosT);
+		for (size_t i = 0; i < cornerNormals.size(); i++){
+			const MQPoint &n = cornerNormals[i];
+			fprintf(fp, "vn %.4f %.4f %.4f\n", n.x, n.y, n.z);
 		}
 
 		int vnCur = vnOffset;
@@ -937,17 +1066,199 @@ void SmoothingGroupPlugin::OnDraw(MQDocument doc, MQScene scene, int width, int 
 	}
 }
 
+
+//---------------------------------------------------------------------------
+// NordLicht workflow: explicit sharp-edge tools
+//---------------------------------------------------------------------------
+void SmoothingGroupPlugin::SelectSharpEdges(MQDocument doc, bool byAngle, float angleDeg)
+{
+	int uid = EnsureUserData(doc);
+	float cosT = cosf(angleDeg * 3.14159265f / 180.0f);
+	int edgeUid = doc->FindObjectUserData(SG_PRODUCT, SG_PLUGIN, SG_EDGE_STATE_NAME);
+	doc->ClearSelect(MQDOC_CLEARSELECT_LINE);
+	int n = 0, nCrease = 0, nSG = 0;
+	int numObj = doc->GetObjectCount();
+	for (int oi = 0; oi < numObj; oi++){
+		MQObject obj = doc->GetObject(oi);
+		if (obj == NULL || !obj->GetVisible() || obj->GetLocking()) continue;
+		// 与导出器一致的判定模式：显式折痕（edge_state 标志）∪ 平滑组掩码
+		char edgeState = 0;
+		bool explicitMode = (edgeUid > 0 && obj->GetUserData(edgeUid, &edgeState) && edgeState);
+		bool sgMode = (uid > 0);
+		ObjInfo info;
+		AnalyzeObject(obj, uid, info);
+		for (auto &kv : info.edgeFaces){
+			auto &list = kv.second;
+			bool sharp = false;
+			bool creaseSharp = false, sgSharp = false;
+			if (byAngle){
+				// 角度启发式：仅用于发现候选锐边（非导出语义）
+				if (list.size() == 2){
+					float d = info.fnorm[list[0].first][0] * info.fnorm[list[1].first][0]
+					        + info.fnorm[list[0].first][1] * info.fnorm[list[1].first][1]
+					        + info.fnorm[list[0].first][2] * info.fnorm[list[1].first][2];
+					sharp = (d < cosT);
+				}
+			}else if (list.size() >= 2){
+				// 统一规则：折痕强制为硬边；无折痕时看平滑组
+				if (explicitMode){
+					for (auto &fc : list)
+						if (obj->GetFaceEdgeCrease(fc.first, fc.second) >= 0.5f){ creaseSharp = true; break; }
+				}
+				if (!creaseSharp && sgMode){
+					size_t cnt = list.size();
+					for (size_t a = 0; a < cnt && !sgSharp; a++)
+						for (size_t b = a + 1; b < cnt; b++){
+							unsigned int ma = info.fmask[list[a].first], mb = info.fmask[list[b].first];
+							if (explicitMode){
+								// 折痕+平滑组合：仅已分组面参与组判定，未分组面服从折痕
+								if (ma != 0 && mb != 0 && (ma & mb) == 0){ sgSharp = true; break; }
+							}else{
+								// 纯平滑组：无共同组（含未分组面）即硬边
+								if ((ma & mb) == 0){ sgSharp = true; break; }
+							}
+						}
+				}
+				sharp = creaseSharp || sgSharp;
+				if (creaseSharp) nCrease++;
+				if (sgSharp) nSG++;
+			}
+			if (sharp){
+				for (auto &fc : list){
+					if (doc->AddSelectLine(oi, fc.first, fc.second)) n++;
+				}
+			}
+		}
+	}
+	wchar_t buf[128];
+	if (byAngle)
+		swprintf(buf, 128, L"已选中 %d 条锐边（按角度 %.0f°）", n, angleDeg);
+	else
+		swprintf(buf, 128, L"已选中 %d 条锐边（折痕 %d + 平滑组 %d，与导出一致）", n, nCrease, nSG);
+	SetStatusString(buf);
+	RedrawAllScene();
+}
+
+void SmoothingGroupPlugin::SetCreaseSelected(MQDocument doc, bool mark)
+{
+	int n = 0, edgeUid = -1;
+	int numObj = doc->GetObjectCount();
+	for (int oi = 0; oi < numObj; oi++){
+		MQObject obj = doc->GetObject(oi);
+		if (obj == NULL || !obj->GetVisible() || obj->GetLocking()) continue;
+		int nf = obj->GetFaceCount();
+		for (int fi = 0; fi < nf; fi++){
+			int nv = obj->GetFacePointCount(fi);
+			for (int i = 0; i < nv; i++){
+				if (doc->IsSelectLine(oi, fi, i)){
+					if (edgeUid <= 0) edgeUid = doc->FindObjectUserData(SG_PRODUCT, SG_PLUGIN, SG_EDGE_STATE_NAME);
+					if (edgeUid <= 0) edgeUid = doc->CreateObjectUserData(SG_PRODUCT, SG_PLUGIN, SG_EDGE_STATE_NAME, 1);
+					if (edgeUid > 0){
+						obj->AllocUserData(edgeUid);
+						char enabled = 1;
+						obj->SetUserData(edgeUid, &enabled);
+					}
+					obj->SetFaceEdgeCrease(fi, i, mark ? 1.0f : 0.0f);
+					n++;
+				}
+			}
+		}
+	}
+	wchar_t buf[96];
+	swprintf(buf, 96, L"%s %d 条折痕", mark ? L"已标记" : L"已清除", n);
+	SetStatusString(buf);
+	RedrawAllScene();
+}
+
+void SmoothingGroupPlugin::GroupByCrease(MQDocument doc)
+{
+	// 折痕驱动的分组：显式、无间接平滑（NordLicht 方案）
+	int uid = EnsureUserData(doc);
+	if (uid <= 0) return;
+	int totalGroups = 0, overflowRegions = 0;
+	int numObj = doc->GetObjectCount();
+	for (int oi = 0; oi < numObj; oi++){
+		MQObject obj = doc->GetObject(oi);
+		if (obj == NULL || !obj->GetVisible() || obj->GetLocking()) continue;
+		obj->AllocFaceUserData(uid);
+		ObjInfo info;
+		AnalyzeObject(obj, uid, info);
+		int nf = (int)info.fverts.size();
+		if (nf == 0) continue;
+
+		// creased adjacency map: face -> neighboring faces (crease < 0.5 = connected)
+		std::vector< std::vector<int> > adj(nf);
+		for (auto &kv : info.edgeFaces){
+			auto &list = kv.second;
+			if (list.size() != 2) continue;
+			int f1 = list[0].first, e1 = list[0].second;
+			int f2 = list[1].first, e2 = list[1].second;
+			float c1 = obj->GetFaceEdgeCrease(f1, e1);
+			float c2 = obj->GetFaceEdgeCrease(f2, e2);
+			if (c1 < 0.5f && c2 < 0.5f){
+				adj[f1].push_back(f2);
+				adj[f2].push_back(f1);
+			}
+		}
+
+		std::vector<char> visited(nf, 0);
+		int group = 0;
+		for (int start = 0; start < nf; start++){
+			if (visited[start] || info.fverts[start].empty()) continue;
+			unsigned int bit = 0;
+			if (group < SG_MAX_GROUP) bit = 1u << group++;
+			else overflowRegions++;
+			std::vector<int> stack(1, start);
+			visited[start] = 1;
+			while (!stack.empty()){
+				int f = stack.back(); stack.pop_back();
+				obj->SetFaceUserData(uid, f, &bit);
+				for (int g : adj[f]){
+					if (!visited[g] && !info.fverts[g].empty()){
+						visited[g] = 1;
+						stack.push_back(g);
+					}
+				}
+			}
+		}
+		totalGroups += group;
+	}
+	wchar_t buf[160];
+	if (overflowRegions > 0)
+		swprintf(buf, 160, L"按折痕分组完成：共 %d 组；%d 个区域超出 32 组上限，未分配", totalGroups, overflowRegions);
+	else
+		swprintf(buf, 160, L"按折痕分组完成：共 %d 组", totalGroups);
+	SetStatusString(buf);
+	RefreshGroupList();
+	if (m_ColorEnabled) Colorize(doc, true);
+	if (m_PreviewMode > SG_NORMAL_BUILTIN) CreasePreview(doc, m_PreviewMode, m_Angle);
+	RedrawAllScene();
+}
+
 //---------------------------------------------------------------------------
 // persistence
 //---------------------------------------------------------------------------
 void SmoothingGroupPlugin::OnSaveDocument(MQDocument doc, const char *filename, SAVE_DOCUMENT_PARAM& param)
 {
 	if (param.elem == NULL) return;
+	int numObj = doc->GetObjectCount();
+	int edgeUid = doc->FindObjectUserData(SG_PRODUCT, SG_PLUGIN, SG_EDGE_STATE_NAME);
+	if (edgeUid > 0){
+		for (int oi = 0; oi < numObj; oi++){
+			MQObject obj = doc->GetObject(oi);
+			if (obj == NULL) continue;
+			char enabled = 0;
+			if (!obj->GetUserData(edgeUid, &enabled) || !enabled) continue;
+			MQXmlElement child = param.elem->AddChildElement("EdgeState");
+			char numbuf[16];
+			sprintf(numbuf, "%d", oi);
+			child->SetAttribute("obj", numbuf);
+		}
+	}
+
 	int uid = m_UserDataID;
 	if (uid <= 0) return;
-
 	static const char *hex = "0123456789abcdef";
-	int numObj = doc->GetObjectCount();
 	for (int oi = 0; oi < numObj; oi++){
 		MQObject obj = doc->GetObject(oi);
 		if (obj == NULL) continue;
@@ -979,9 +1290,25 @@ void SmoothingGroupPlugin::OnNewDocument(MQDocument doc, const char *filename, N
 {
 	m_UserDataID = -1;
 	int uid = EnsureUserData(doc);
-	if (uid <= 0 || param.elem == NULL) return;
-
+	if (param.elem == NULL) return;
 	int numObj = doc->GetObjectCount();
+	int edgeUid = doc->FindObjectUserData(SG_PRODUCT, SG_PLUGIN, SG_EDGE_STATE_NAME);
+	if (edgeUid <= 0)
+		edgeUid = doc->CreateObjectUserData(SG_PRODUCT, SG_PLUGIN, SG_EDGE_STATE_NAME, 1);
+	if (edgeUid > 0){
+		for (MQXmlElement child = param.elem->FirstChildElement("EdgeState");
+		     child != NULL; child = param.elem->NextChildElement("EdgeState", child)){
+			int oi = atoi(child->GetAttribute("obj").c_str());
+			if (oi < 0 || oi >= numObj) continue;
+			MQObject obj = doc->GetObject(oi);
+			if (obj == NULL) continue;
+			obj->AllocUserData(edgeUid);
+			char enabled = 1;
+			obj->SetUserData(edgeUid, &enabled);
+		}
+	}
+	if (uid <= 0) return;
+
 	for (MQXmlElement child = param.elem->FirstChildElement("SG");
 	     child != NULL; child = param.elem->NextChildElement("SG", child)){
 		int oi = atoi(child->GetAttribute("obj").c_str());
