@@ -1,11 +1,12 @@
 //---------------------------------------------------------------------------
-// ExportFBXNative for Metasequoia v2.2
+// ExportFBXNative for Metasequoia v2.4
 // Scene-aware FBX 7.4 binary exporter.
 // Implements mesh/object hierarchy, local transforms, per-face materials,
 // per-corner smooth normals, all available UV channels, and edge indices.
 // Smoothing-group masks are written as ByPolygon 32-bit bitmasks (3ds Max reads
-// them directly as smoothing groups); crease-only meshes fall back to ByEdge 0/1.
-// (creases force sharp; SG masks form the base layer).
+// them directly as smoothing groups) AND the unified crease+SG shading is baked
+// into custom split normals (LayerElementNormal), so hard edges survive in any
+// importer; crease-only meshes fall back to ByEdge 0/1 (Blender sharp edges).
 // Material textures (diffuse/alpha/bump) are exported as external file
 // references (Video + Texture nodes) with UV set binding.
 //---------------------------------------------------------------------------
@@ -480,6 +481,83 @@ static bool BuildMeshData(MQDocument doc,MQObject sceneObj,MQObject geometryObj,
             m.smoothing.push_back(smooth?1:0);
         }
     }
+    if(m.smoothingMode){
+        // Recompute per-corner normals from the unified hard-edge rule, so the
+        // exact crease/SG shading is stored as custom split normals alongside
+        // the smoothing layer (3ds Max gets editable groups AND exact shading;
+        // Blender reads the custom normals directly).
+        int nc=(int)m.polygonIndices.size();
+        std::vector<int> cornerVert(nc);std::vector<int> faceStart;std::vector<int> faceCount;
+        std::vector<double> faceNrm;
+        int fStart=0;
+        for(int c=0;c<nc;c++){
+            int raw=m.polygonIndices[c];int v=(raw<0)?-(raw+1):raw;cornerVert[c]=v;
+            if(raw<0){
+                int cnt=c-fStart+1;faceStart.push_back(fStart);faceCount.push_back(cnt);
+                double nx=0,ny=0,nz=0; // Newell's method, robust for n-gons
+                for(int k=0;k<cnt;k++){
+                    int c1=faceStart.back()+k,c2=faceStart.back()+(k+1)%cnt;
+                    double x1=m.vertices[cornerVert[c1]*3],y1=m.vertices[cornerVert[c1]*3+1],z1=m.vertices[cornerVert[c1]*3+2];
+                    double x2=m.vertices[cornerVert[c2]*3],y2=m.vertices[cornerVert[c2]*3+1],z2=m.vertices[cornerVert[c2]*3+2];
+                    nx+=(y1-y2)*(z1+z2);ny+=(z1-z2)*(x1+x2);nz+=(x1-x2)*(y1+y2);
+                }
+                double l=sqrt(nx*nx+ny*ny+nz*nz);if(l>1e-20){nx/=l;ny/=l;nz/=l;}else{nx=0;ny=1;nz=0;}
+                faceNrm.push_back(nx);faceNrm.push_back(ny);faceNrm.push_back(nz);
+                fStart=c+1;
+            }
+        }
+        int nf2=(int)faceStart.size();
+        std::vector<int> cornerFace(nc);
+        for(int f=0;f<nf2;f++)for(int k=0;k<faceCount[f];k++)cornerFace[faceStart[f]+k]=f;
+        std::vector<std::vector<int> > vertCorners((size_t)nv);
+        for(int c=0;c<nc;c++)vertCorners[cornerVert[c]].push_back(c);
+        // edge index by vertex pair, aligned with m.smoothing
+        std::map<std::pair<int,int>,int> eIdx;
+        for(size_t e=0;e<m.edges.size();e++){
+            int c=m.edges[e];int f=cornerFace[c];
+            int c2=faceStart[f]+(c-faceStart[f]+1)%faceCount[f];
+            int a=cornerVert[c],b=cornerVert[c2];
+            eIdx[std::make_pair(std::min(a,b),std::max(a,b))]=(int)e;
+        }
+        for(int v=0;v<nv;v++){
+            const std::vector<int> &cs=vertCorners[v];if(cs.empty())continue;
+            std::map<int,int> parent;
+            for(size_t i=0;i<cs.size();i++){int f=cornerFace[cs[i]];parent[f]=f;}
+            // neighbor links at v: other endpoint -> incident faces (at v)
+            std::map<int,std::vector<int> > link;
+            for(size_t i=0;i<cs.size();i++){
+                int c=cs[i];int f=cornerFace[c];int off=c-faceStart[f];int cnt=faceCount[f];
+                int cPrev=faceStart[f]+(off-1+cnt)%cnt;
+                int cNext=faceStart[f]+(off+1)%cnt;
+                link[cornerVert[cPrev]].push_back(f);
+                link[cornerVert[cNext]].push_back(f);
+            }
+            for(std::map<int,std::vector<int> >::iterator kv=link.begin();kv!=link.end();++kv){
+                if(kv->second.size()<2)continue;
+                std::map<std::pair<int,int>,int>::iterator it=eIdx.find(std::make_pair(std::min(v,kv->first),std::max(v,kv->first)));
+                if(it==eIdx.end())continue;
+                if(!m.smoothing[it->second])continue; // hard edge: faces stay split
+                for(size_t j=1;j<kv->second.size();j++){
+                    int ra=kv->second[0];while(parent[ra]!=ra)ra=parent[ra];
+                    int rb=kv->second[j];while(parent[rb]!=rb)rb=parent[rb];
+                    if(ra!=rb)parent[rb]=ra;
+                }
+            }
+            std::map<int,std::vector<double> > sum;
+            for(size_t i=0;i<cs.size();i++){
+                int f=cornerFace[cs[i]];int r=f;while(parent[r]!=r)r=parent[r];
+                std::vector<double> &s=sum[r];if(s.empty())s.assign(3,0.0);
+                s[0]+=faceNrm[f*3];s[1]+=faceNrm[f*3+1];s[2]+=faceNrm[f*3+2];
+            }
+            for(size_t i=0;i<cs.size();i++){
+                int c=cs[i];int f=cornerFace[c];int r=f;while(parent[r]!=r)r=parent[r];
+                std::vector<double> &s=sum[r];
+                double l=sqrt(s[0]*s[0]+s[1]*s[1]+s[2]*s[2]);
+                double nx=0,ny=1,nz=0;if(l>1e-20){nx=s[0]/l;ny=s[1]/l;nz=s[2]/l;}
+                m.normals[c*3]=nx;m.normals[c*3+1]=ny;m.normals[c*3+2]=nz;
+            }
+        }
+    }
     m.uvSets.erase(std::remove_if(m.uvSets.begin(),m.uvSets.end(),[](const UVSetData &u){return !u.valid;}),m.uvSets.end());
     m.hasMesh=true;return true;
 }
@@ -502,13 +580,14 @@ static void WriteGeometry(FbxWriter &w,const MeshData &m){
     w.Begin("GeometryVersion");w.PropI32(124);w.End();w.Begin("Vertices");w.PropF64Array(m.vertices);w.End();
     w.Begin("PolygonVertexIndex");w.PropI32Array(m.polygonIndices);w.End();
     w.Begin("Edges");w.PropI32Array(m.edges);w.End();
-    if(m.smoothingMode==0){
-        w.Begin("LayerElementNormal");w.PropI32(0);w.Begin("Version");w.PropI32(101);w.End();w.Begin("Name");w.PropStr("");w.End();w.Begin("MappingInformationType");w.PropStr("ByPolygonVertex");w.End();w.Begin("ReferenceInformationType");w.PropStr("Direct");w.End();w.Begin("Normals");w.PropF64Array(m.normals);w.End();w.End(true);
-    }else if(m.smoothingMode&2){
+    // Custom split normals are always written: plain MQ normals when no
+    // smoothing data exists, unified-rule normals otherwise.
+    w.Begin("LayerElementNormal");w.PropI32(0);w.Begin("Version");w.PropI32(101);w.End();w.Begin("Name");w.PropStr("");w.End();w.Begin("MappingInformationType");w.PropStr("ByPolygonVertex");w.End();w.Begin("ReferenceInformationType");w.PropStr("Direct");w.End();w.Begin("Normals");w.PropF64Array(m.normals);w.End();w.End(true);
+    if(m.smoothingMode&2){
         // Smoothing-group data present: write ByPolygon 32-bit group bitmasks,
         // which 3ds Max imports directly as smoothing groups.
         w.Begin("LayerElementSmoothing");w.PropI32(0);w.Begin("Version");w.PropI32(101);w.End();w.Begin("Name");w.PropStr("");w.End();w.Begin("MappingInformationType");w.PropStr("ByPolygon");w.End();w.Begin("ReferenceInformationType");w.PropStr("Direct");w.End();w.Begin("Smoothing");w.PropI32Array(m.faceMasks);w.End();w.End(true);
-    }else{
+    }else if(m.smoothingMode==1){
         // Crease-only meshes: ByEdge 0/1 hard-edge flags (Blender sharp edges).
         w.Begin("LayerElementSmoothing");w.PropI32(0);w.Begin("Version");w.PropI32(101);w.End();w.Begin("Name");w.PropStr("");w.End();w.Begin("MappingInformationType");w.PropStr("ByEdge");w.End();w.Begin("ReferenceInformationType");w.PropStr("Direct");w.End();w.Begin("Smoothing");w.PropI32Array(m.smoothing);w.End();w.End(true);
     }
@@ -517,8 +596,8 @@ static void WriteGeometry(FbxWriter &w,const MeshData &m){
     }
     w.Begin("LayerElementMaterial");w.PropI32(0);w.Begin("Version");w.PropI32(101);w.End();w.Begin("Name");w.PropStr("");w.End();w.Begin("MappingInformationType");w.PropStr("ByPolygon");w.End();w.Begin("ReferenceInformationType");w.PropStr("IndexToDirect");w.End();w.Begin("Materials");w.PropI32Array(m.faceMaterials);w.End();w.End(true);
     w.Begin("Layer");w.PropI32(0);w.Begin("Version");w.PropI32(100);w.End();
-    if(m.smoothingMode==0){w.Begin("LayerElement");w.Begin("Type");w.PropStr("LayerElementNormal");w.End();w.Begin("TypedIndex");w.PropI32(0);w.End();w.End(true);}
-    else{w.Begin("LayerElement");w.Begin("Type");w.PropStr("LayerElementSmoothing");w.End();w.Begin("TypedIndex");w.PropI32(0);w.End();w.End(true);}
+    w.Begin("LayerElement");w.Begin("Type");w.PropStr("LayerElementNormal");w.End();w.Begin("TypedIndex");w.PropI32(0);w.End();w.End(true);
+    if(m.smoothingMode!=0){w.Begin("LayerElement");w.Begin("Type");w.PropStr("LayerElementSmoothing");w.End();w.Begin("TypedIndex");w.PropI32(0);w.End();w.End(true);}
     for(size_t i=0;i<m.uvSets.size();i++){w.Begin("LayerElement");w.Begin("Type");w.PropStr("LayerElementUV");w.End();w.Begin("TypedIndex");w.PropI32((int)i);w.End();w.End(true);}
     w.Begin("LayerElement");w.Begin("Type");w.PropStr("LayerElementMaterial");w.End();w.Begin("TypedIndex");w.PropI32(0);w.End();w.End(true);
     w.End(true);w.End(true);
@@ -548,7 +627,7 @@ static void WriteMaterial(FbxWriter &w,const MaterialData &md){
 class ExportFBXNativePlugin : public MQExportPlugin {
 public:
     virtual void GetPlugInID(DWORD *Product,DWORD *ID){*Product=0x4642584E;*ID=0x59D21C4B;}
-    virtual const char *GetPlugInName(void){return "FBX Export (native) v2.3 (Max-compatible smoothing groups)";}
+    virtual const char *GetPlugInName(void){return "FBX Export (native) v2.4 (custom normals + Max smoothing groups)";}
     virtual const char *EnumFileType(int i){return i==0?"FBX (binary, native)":NULL;}
     virtual const char *EnumFileExt(int i){return i==0?"fbx":NULL;}
     virtual BOOL ExportFile(int,const wchar_t *filename,MQDocument doc){return WriteFBX(filename,doc)?TRUE:FALSE;}
@@ -621,10 +700,10 @@ bool ExportFBXNativePlugin::WriteFBX(const wchar_t *path,MQDocument doc){
     SYSTEMTIME now;GetSystemTime(&now);
     w.Begin("FBXHeaderExtension");w.Begin("FBXHeaderVersion");w.PropI32(1003);w.End();w.Begin("FBXVersion");w.PropI32(7400);w.End();w.Begin("EncryptionType");w.PropI32(0);w.End();
     w.Begin("CreationTimeStamp");w.Begin("Version");w.PropI32(1000);w.End();w.Begin("Year");w.PropI32(now.wYear);w.End();w.Begin("Month");w.PropI32(now.wMonth);w.End();w.Begin("Day");w.PropI32(now.wDay);w.End();w.Begin("Hour");w.PropI32(now.wHour);w.End();w.Begin("Minute");w.PropI32(now.wMinute);w.End();w.Begin("Second");w.PropI32(now.wSecond);w.End();w.Begin("Millisecond");w.PropI32(now.wMilliseconds);w.End();w.End(true);
-    w.Begin("Creator");w.PropStr("ExportFBXNative v2.3");w.End();w.End(true);
+    w.Begin("Creator");w.PropStr("ExportFBXNative v2.4");w.End();w.End(true);
     unsigned char fid[16]={0};FILETIME ft;GetSystemTimeAsFileTime(&ft);memcpy(fid,&ft,8);DWORD pid=GetCurrentProcessId(),tick=GetTickCount();memcpy(fid+8,&pid,4);memcpy(fid+12,&tick,4);std::vector<unsigned char> fidv(fid,fid+16);
     char ct[64];sprintf(ct,"%04u-%02u-%02u %02u:%02u:%02u:%03u",(unsigned)now.wYear,(unsigned)now.wMonth,(unsigned)now.wDay,(unsigned)now.wHour,(unsigned)now.wMinute,(unsigned)now.wSecond,(unsigned)now.wMilliseconds);
-    w.Begin("FileId");w.PropRaw(fidv);w.End();w.Begin("CreationTime");w.PropStr(ct);w.End();w.Begin("Creator");w.PropStr("ExportFBXNative v2.3");w.End();
+    w.Begin("FileId");w.PropRaw(fidv);w.End();w.Begin("CreationTime");w.PropStr(ct);w.End();w.Begin("Creator");w.PropStr("ExportFBXNative v2.4");w.End();
     w.Begin("GlobalSettings");w.Begin("Version");w.PropI32(1000);w.End();w.Begin("Properties70");
     PInt(w,"UpAxis",1);PInt(w,"UpAxisSign",1);PInt(w,"FrontAxis",2);PInt(w,"FrontAxisSign",1);PInt(w,"CoordAxis",0);PInt(w,"CoordAxisSign",1);PInt(w,"OriginalUpAxis",-1);PInt(w,"OriginalUpAxisSign",1);
     PScalar(w,"UnitScaleFactor","double","Number","",100.0);PScalar(w,"OriginalUnitScaleFactor","double","Number","",100.0);

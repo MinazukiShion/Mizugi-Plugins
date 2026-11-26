@@ -16,24 +16,24 @@
 
 安装与使用见 `SmoothingGroup/README.txt`。
 
-## 项目二：ImportFBX（FBX 导入插件）v1.5
+## 项目二：ImportFBX（FBX 导入插件）v1.6
 
 基于 [ufbx](https://github.com/ufbx/ufbx)（MIT）的 FBX 导入器：
 
 - 二进制 / ASCII FBX 通吃
 - 多 UV 通道导入，贴图自动绑定到对应 UV 通道
-- 折痕边保留，可直接衔接平滑组 / FBX 导出工作流
+- 折痕边保留；ByPolygon 平滑组（3ds Max 式）重建为 SmoothingGroup 组数据（v1.6）
 - 顶点按世界矩阵烘焙，规避水杉层级 TRS 求值导致的子级零件错位问题
 
 见 `ImportFBX/README.txt`。
 
-## 项目三：ExportFBXNative（FBX 导出插件）v2.3
+## 项目三：ExportFBXNative（FBX 导出插件）v2.4
 
 场景感知的 FBX 7.4 二进制导出器（不依赖 FBX SDK）：
 
 - 完整场景层级与对象变换（TRS），单位声明正确（厘米）
 - 平滑组按面写出 32 位位掩码，3ds Max 导入直接还原 1–32 号平滑组；
-  纯折痕网格回退 ByEdge 锐边（Blender 路径）
+  统一硬边规则同时烘焙为自定义拆边法线，任何软件都能看到一致的硬边
 - UV 层与贴图（Material / Texture / Video 节点）一并导出
 - 附带 validate_fbx.py 导出结构自检脚本
 
@@ -56,8 +56,8 @@
 ## dist/
 
 - `SmoothingGroup_v3.4.zip`：平滑组插件分发包（DLL + 源码 + 说明）
-- `ImportFBX_v1.5.zip`：FBX 导入插件分发包
-- `ExportFBXNative_v2.3.zip`：FBX 导出插件分发包
+- `ImportFBX_v1.6.zip`：FBX 导入插件分发包
+- `ExportFBXNative_v2.4.zip`：FBX 导出插件分发包
 - `SmoothingGroup_v1.0.zip`、`Metasequoia_中文语言包_v1.0.zip`：历史版本
 
 ---

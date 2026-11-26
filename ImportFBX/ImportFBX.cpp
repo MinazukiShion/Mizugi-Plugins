@@ -1,11 +1,13 @@
 //---------------------------------------------------------------------------
 //
-//   ImportFBX for Metasequoia  v1.5
+//   ImportFBX for Metasequoia  v1.6
 //
 //     FBX import via ufbx (https://github.com/ufbx/ufbx, MIT).
 //     Meshes + scene hierarchy + all UV sets + materials with
 //     diffuse/alpha/bump texture paths.
-//     Explicit edge smoothing or normal-derived sharp edges are stored as creases.
+//     ByPolygon smoothing groups (3ds Max style) are reconstructed into
+//     SmoothingGroup-plugin face masks (soft-edge islands -> group bits);
+//     explicit edge smoothing or normal-derived sharp edges become creases.
 //     Transforms: Metasequoia's viewport does not evaluate hierarchical
 //     object TRS the way FBX/ufbx composes it (children of transformed
 //     empties render at the origin), so world transforms are baked into
@@ -22,6 +24,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <set>
 #include <algorithm>
 #include "MQBasePlugin.h"
 #include "ufbx.h"
@@ -29,6 +32,7 @@
 #define SG_PRODUCT 0x53473031
 #define SG_PLUGIN  0x7C49A2E1
 #define SG_EDGE_STATE_NAME "edge_state"
+#define SG_UDATA_NAME "sgmask"
 
 static void FBXLog(const char *fmt, ...)
 {
@@ -60,7 +64,7 @@ public:
 		*Product = 0x46425849;
 		*ID      = 0x4A3C1187;
 	}
-	virtual const char *GetPlugInName(void) { return "FBX Import (ufbx) v1.5 (scene, multi-UV, textures, world-baked)"; }
+	virtual const char *GetPlugInName(void) { return "FBX Import (ufbx) v1.6 (scene, multi-UV, textures, world-baked, smoothing groups)"; }
 	virtual const char *EnumFileType(int index) { return index == 0 ? "FBX" : NULL; }
 	virtual const char *EnumFileExt(int index)
 	{
@@ -77,6 +81,9 @@ struct FBXImportContext {
 	std::map<std::string, UINT> uvChannelByName; // FBX uv set name -> MQ channel ID
 	std::string fbxDir;
 	int edgeStateUid = -1;
+	int sgMaskUid = -1;
+	int sgIslandCount = 0;
+	int sgFaceCount = 0;
 	int meshCount = 0;
 	int nodeCount = 0;
 	int uvChannelCount = 0;
@@ -223,7 +230,11 @@ static void ImportNode(FBXImportContext &ctx, ufbx_node *node, int depth)
 			matMap[mi] = ImportMaterial(ctx, mesh->materials.data[mi]);
 
 		bool hasExplicitSmoothing = mesh->edge_smoothing.count > 0 && mesh->edge_smoothing.count == mesh->edges.count;
-		bool hasEdgeState = hasExplicitSmoothing || mesh->vertex_normal.exists;
+		// ByPolygon smoothing (3ds Max-style groups): rebuild SmoothingGroup
+		// face masks from soft-edge islands instead of storing creases.
+		bool hasFaceSmoothing = !hasExplicitSmoothing && mesh->face_smoothing.count > 0 && mesh->face_smoothing.count == mesh->faces.count;
+		bool hasEdgeState = !hasFaceSmoothing && (hasExplicitSmoothing || mesh->vertex_normal.exists);
+		std::vector<std::pair<int,size_t> > mqFaces; // (MQ face id, FBX face index)
 		std::map<std::pair<uint32_t,uint32_t>, size_t> edgeMap;
 		std::map<std::pair<uint32_t,uint32_t>, std::vector<FBXEdgeImport> > edgeIncidents;
 		if (hasExplicitSmoothing){
@@ -253,6 +264,7 @@ static void ImportNode(FBXImportContext &ctx, ufbx_node *node, int depth)
 				idx[n - 1 - k] = (int)mesh->vertex_indices.data[f.index_begin + k];
 			int face = obj->AddFace(n, idx.data());
 			if (face < 0) continue;
+			mqFaces.push_back(std::make_pair(face, fi));
 
 			if (fi < mesh->face_material.count){
 				int mi = mesh->face_material.data[fi];
@@ -270,7 +282,7 @@ static void ImportNode(FBXImportContext &ctx, ufbx_node *node, int depth)
 					else
 						obj->SetFaceChannelCoordinate(face, k, uvSets[ui].channel, coord);
 				}
-				if (hasEdgeState){
+				if (hasEdgeState || hasFaceSmoothing){
 					int mqEdge = (k - 1 + n) % n;
 					uint32_t a = (uint32_t)idx[k];
 					size_t nextCorner = f.index_begin + (size_t)((n - k) % n);
@@ -292,13 +304,101 @@ static void ImportNode(FBXImportContext &ctx, ufbx_node *node, int depth)
 							double dotB = b == prior.b ? NormalDot(current.normalB, prior.normalB) : NormalDot(current.normalB, prior.normalA);
 							if (dotA < 0.9999 || dotB < 0.9999){ smooth = false; break; }
 						}
-						for (size_t pi = 0; pi < incidents.size(); pi++)
-							if (!smooth) obj->SetFaceEdgeCrease(incidents[pi].face, incidents[pi].edge, 1.0f);
+						if (!hasFaceSmoothing){
+							for (size_t pi = 0; pi < incidents.size(); pi++)
+								if (!smooth) obj->SetFaceEdgeCrease(incidents[pi].face, incidents[pi].edge, 1.0f);
+						}
 						incidents.push_back(current);
 					}
-					obj->SetFaceEdgeCrease(face, mqEdge, smooth ? 0.0f : 1.0f);
+					if (!hasFaceSmoothing)
+						obj->SetFaceEdgeCrease(face, mqEdge, smooth ? 0.0f : 1.0f);
 				}
 			}
+		}
+		if (hasFaceSmoothing && !mqFaces.empty()){
+			// Per-edge softness from custom/generated normals (ufbx generated
+			// normals respect smoothing groups, so this also works for Max
+			// files that carry no custom normals).
+			std::map<std::pair<uint32_t,uint32_t>, bool> edgeSoft;
+			for (std::map<std::pair<uint32_t,uint32_t>, std::vector<FBXEdgeImport> >::iterator kv = edgeIncidents.begin(); kv != edgeIncidents.end(); ++kv){
+				bool soft = true;
+				const std::vector<FBXEdgeImport> &inc = kv->second;
+				for (size_t i = 0; i < inc.size() && soft; i++)
+					for (size_t j = i + 1; j < inc.size(); j++){
+						const FBXEdgeImport &A = inc[i], &B = inc[j];
+						double dotA = A.a == B.a ? NormalDot(A.normalA, B.normalA) : NormalDot(A.normalA, B.normalB);
+						double dotB = A.b == B.b ? NormalDot(A.normalB, B.normalB) : NormalDot(A.normalB, B.normalA);
+						if (dotA < 0.9999 || dotB < 0.9999){ soft = false; break; }
+					}
+				edgeSoft[kv->first] = soft;
+			}
+			// Union smoothing-true faces over soft edges into islands.
+			std::map<int,int> parent;
+			std::map<int,bool> faceGroupable;
+			for (size_t i = 0; i < mqFaces.size(); i++){
+				bool t = mqFaces[i].second < mesh->face_smoothing.count && mesh->face_smoothing.data[mqFaces[i].second];
+				faceGroupable[mqFaces[i].first] = t;
+				if (t) parent[mqFaces[i].first] = mqFaces[i].first;
+			}
+			for (std::map<std::pair<uint32_t,uint32_t>, std::vector<FBXEdgeImport> >::iterator kv = edgeIncidents.begin(); kv != edgeIncidents.end(); ++kv){
+				if (!edgeSoft[kv->first]) continue;
+				const std::vector<FBXEdgeImport> &inc = kv->second;
+				for (size_t i = 0; i < inc.size(); i++)
+					for (size_t j = i + 1; j < inc.size(); j++){
+						int f0 = inc[i].face, f1 = inc[j].face;
+						if (!faceGroupable[f0] || !faceGroupable[f1]) continue;
+						int r0 = f0; while (parent[r0] != r0) r0 = parent[r0];
+						int r1 = f1; while (parent[r1] != r1) r1 = parent[r1];
+						if (r0 != r1) parent[r1] = r0;
+					}
+			}
+			// Island list + adjacency (islands sharing any edge must differ).
+			std::map<int,int> rootIsland;
+			std::vector<std::vector<int> > islandFaces;
+			for (std::map<int,int>::iterator kv = parent.begin(); kv != parent.end(); ++kv){
+				int r = kv->first; while (parent[r] != r) r = parent[r];
+				if (!rootIsland.count(r)){ rootIsland[r] = (int)islandFaces.size(); islandFaces.push_back(std::vector<int>()); }
+				islandFaces[rootIsland[r]].push_back(kv->first);
+			}
+			std::vector<std::set<int> > adj(islandFaces.size());
+			for (std::map<std::pair<uint32_t,uint32_t>, std::vector<FBXEdgeImport> >::iterator kv = edgeIncidents.begin(); kv != edgeIncidents.end(); ++kv){
+				const std::vector<FBXEdgeImport> &inc = kv->second;
+				for (size_t i = 0; i < inc.size(); i++)
+					for (size_t j = i + 1; j < inc.size(); j++){
+						int fi = inc[i].face, fj = inc[j].face;
+						if (!parent.count(fi) || !parent.count(fj)) continue;
+						int ri = fi; while (parent[ri] != ri) ri = parent[ri];
+						int rj = fj; while (parent[rj] != rj) rj = parent[rj];
+						if (ri != rj){ adj[rootIsland[ri]].insert(rootIsland[rj]); adj[rootIsland[rj]].insert(rootIsland[ri]); }
+					}
+			}
+			// Greedy bit coloring, largest island first (reuses group numbers).
+			std::vector<int> order(islandFaces.size());
+			for (size_t i = 0; i < order.size(); i++) order[i] = (int)i;
+			std::sort(order.begin(), order.end(), [&](int a, int b){ return islandFaces[a].size() > islandFaces[b].size(); });
+			std::vector<int> islandBit(islandFaces.size(), -1);
+			for (size_t oi = 0; oi < order.size(); oi++){
+				int isl = order[oi];
+				unsigned int used = 0;
+				for (std::set<int>::iterator nb = adj[isl].begin(); nb != adj[isl].end(); ++nb)
+					if (islandBit[*nb] >= 0) used |= (1u << islandBit[*nb]);
+				int bit = 0; while (bit < 32 && (used & (1u << bit))) bit++;
+				islandBit[isl] = bit < 32 ? bit : -1;
+			}
+			// Write masks: smoothing-false faces stay 0 (Max faceted semantics).
+			obj->AllocFaceUserData(ctx.sgMaskUid);
+			for (size_t i = 0; i < mqFaces.size(); i++){
+				int mf = mqFaces[i].first;
+				unsigned int mask = 0;
+				if (parent.count(mf)){
+					int r = mf; while (parent[r] != r) r = parent[r];
+					int bit = islandBit[rootIsland[r]];
+					if (bit >= 0) mask = (1u << bit);
+				}
+				obj->SetFaceUserData(ctx.sgMaskUid, mf, &mask);
+				if (mask) ctx.sgFaceCount++;
+			}
+			ctx.sgIslandCount += (int)islandFaces.size();
 		}
 		obj->UpdateNormal();
 		ctx.meshCount++;
@@ -318,6 +418,7 @@ BOOL ImportFBXPlugin::ImportFile(int index, const wchar_t *filename, MQDocument 
 
 	ufbx_load_opts opts = {0};
 	opts.target_unit_meters = 1.0f;
+	opts.generate_missing_normals = true; // respects smoothing groups
 	ufbx_error err;
 	ufbx_scene *scene = ufbx_load_file(path, &opts, &err);
 	FBXLog("load %s -> scene=%p", path, (void*)scene);
@@ -334,13 +435,16 @@ BOOL ImportFBXPlugin::ImportFile(int index, const wchar_t *filename, MQDocument 
 	ctx.edgeStateUid = doc->FindObjectUserData(SG_PRODUCT, SG_PLUGIN, SG_EDGE_STATE_NAME);
 	if (ctx.edgeStateUid <= 0)
 		ctx.edgeStateUid = doc->CreateObjectUserData(SG_PRODUCT, SG_PLUGIN, SG_EDGE_STATE_NAME, 1);
+	ctx.sgMaskUid = doc->FindFaceUserData(SG_PRODUCT, SG_PLUGIN, SG_UDATA_NAME);
+	if (ctx.sgMaskUid <= 0)
+		ctx.sgMaskUid = doc->CreateFaceUserData(SG_PRODUCT, SG_PLUGIN, SG_UDATA_NAME, sizeof(unsigned int));
 	if (scene->root_node){
 		for (size_t ni = 0; ni < scene->root_node->children.count; ni++)
 			ImportNode(ctx, scene->root_node->children.data[ni], 0);
 	}
-	FBXLog("imported_nodes=%d imported_meshes=%d docObjects=%d materials=%d uv_layers=%d textures=%d",
+	FBXLog("imported_nodes=%d imported_meshes=%d docObjects=%d materials=%d uv_layers=%d textures=%d sg_islands=%d sg_faces=%d",
 	       ctx.nodeCount, ctx.meshCount, doc->GetObjectCount(), (int)ctx.materials.size(),
-	       ctx.uvChannelCount, ctx.textureCount);
+	       ctx.uvChannelCount, ctx.textureCount, ctx.sgIslandCount, ctx.sgFaceCount);
 	ufbx_free_scene(scene);
 	return ctx.meshCount > 0 ? TRUE : FALSE;
 }

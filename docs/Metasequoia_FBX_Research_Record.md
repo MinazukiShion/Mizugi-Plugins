@@ -1072,3 +1072,35 @@ python -m py_compile validate_fbx_smoothing.py
 会显示为软边（Max 只认组掩码，没有逐边硬度通道）；这类边要么在 Max 里
 补打，要么拆到不同组。validate_fbx.py 同步放宽为按映射类型分流校验
 （ByPolygon 要求数量=多边形数；ByEdge 要求数量=棱数且值∈{0,1}）。
+
+## 17. v2.4/v1.6：硬边与平滑组双写 + 导入端平滑组重建（2026-11-26）
+
+**导出器 v2.4（双写）**：单一通道无法同时满足 Max 和 Blender——Max 认
+ByPolygon 位掩码、Blender 认 ByEdge/自定义法线。v2.4 改为同时写两层：
+
+- `LayerElementNormal`（ByPolygonVertex/Direct）：按统一硬边规则
+  （折痕 ∪ 平滑组）重算的自定义拆边法线。算法：Newell 面法线 →
+  逐顶点对关联面做并查集（仅沿"软"棱合并）→ 区域面法线求和归一。
+  任何读自定义法线的软件（Blender 默认开、Max 也读）直接看到精确硬边。
+- `LayerElementSmoothing`（ByPolygon/Direct 位掩码）：Max 导入后得到
+  可继续编辑的 1–32 号平滑组。
+
+即"法线管显示、组管编辑"，与 3ds Max 自家 FBX 导出的结构一致。
+v2.3 的取舍（共享组但有折痕的边在 Max 显示为软边）在 v2.4 被自定义法线
+覆盖——Max 视口显示以自定义法线为准，组仅作编辑依据。
+
+**导入器 v1.6（组重建）**：ufbx 把 ByPolygon smoothing 读成逐面 bool
+（`face_smoothing`，位掩码细节丢失），所以组无法直接读回，改为重建：
+
+- 开 `generate_missing_normals`（ufbx 生成法线时尊重平滑组，Max 原生
+  文件无自定义法线也能得到正确的软硬边）；
+- 逐棱软硬判定复用既有的逐角法线点积比较；
+- 软边洪泛成岛（仅 face_smoothing 为真的面参与；为假的面 = Max 未分组
+  面，直接给掩码 0，保持 faceted 且不与任何组平滑）；
+- 岛屿按硬边邻接关系贪心着色分配组号（大岛优先、非邻接岛复用组号，
+  与 SmoothingGroup v3.4 自动分组同策略），写入 `sgmask` 面用户数据，
+  SmoothingGroup 面板可直接看到/编辑，再导出即还原为 Max 平滑组；
+- 有平滑组的网格不再写折痕和 edge_state（组已承载软硬信息，且 SG-only
+  规则下掩码 0 面天然与一切为硬边，语义最贴合 Max）。
+
+已知限制：组编号是重建结果，与原文件的组号可能不同；软硬边关系不变。

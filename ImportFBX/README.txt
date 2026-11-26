@@ -1,4 +1,4 @@
-ImportFBX — 水杉(Metasequoia 4)FBX 导入插件 v1.5
+ImportFBX — 水杉(Metasequoia 4)FBX 导入插件 v1.6
 ====================================================
 
 基于 ufbx（MIT，https://github.com/ufbx/ufbx）的 FBX 导入器，
@@ -14,6 +14,11 @@ ImportFBX — 水杉(Metasequoia 4)FBX 导入插件 v1.5
 - 网格导入：按面材质拆分对象
 - 多 UV 通道导入，贴图自动绑定到对应 UV 通道并建立材质
 - 折痕边 → 水杉折痕标记，可直接衔接 SmoothingGroup / ExportFBXNative 工作流
+- 平滑组（v1.6）：ByPolygon 平滑组（3ds Max 式）按"软边岛屿"重建为
+  SmoothingGroup 插件的组数据——共软边的面成岛、岛屿按邻接关系贪心分配
+  组号（互不共边的岛复用同一组号），未分组面保持 0（Max 的 faceted 语义）；
+  组编号可能与原文件不同，但软硬边关系完全一致。无平滑组的文件维持
+  原有的折痕导入路径不变
 - v1.5：顶点按 FBX 世界矩阵烘焙写入，所有对象 TRS 置单位，
   面板层级仅作组织展示。规避水杉视口对层级对象 TRS 求值与 FBX 语义
   不兼容导致的「子级零件全部糊到原点」问题（空父节点 + 仅平移子节点场景）。
